@@ -1017,9 +1017,9 @@ void board_initialize(void){
 //    ctx = board_init();
 }
 
+////////////////////////////////////////////////////////////////////////////////
 int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board){
 
-    bool_t resize = 0;
 
     if (!ctx) exit(-3);
 
@@ -1076,11 +1076,18 @@ int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board){
 
     keypad(ctx->janela1,TRUE);
 
-    bool_t stoprun = 0;
-
     pthread_create(&ctx->refthread, NULL, refresh_thread, ctx);
 
     board_set_refresh(ctx);
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board){
+
+    bool_t resize = 0;
+
+    bool_t stoprun = 0;
 
     while (!stoprun){
 
@@ -1195,6 +1202,12 @@ int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board){
         }
     }
 
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int board_run_c(board_ctx_t *ctx, event_context_t *ec, board_object *board){
+
     refresh_thread_stop(ctx);
 
     if (!ctx->clock_pausing)
@@ -1206,4 +1219,3 @@ int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board){
 
     return 0;
 }
-

@@ -105,6 +105,8 @@ int board_add_xdigit(board_object *b, indicator *out, int pos_w, int pos_h, char
 int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h);
 
 int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board);
+int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board);
+int board_run_c(board_ctx_t *ctx, event_context_t *ec, board_object *board);
 
 board_object *board_create(int width, int height, int key, char *name);
 

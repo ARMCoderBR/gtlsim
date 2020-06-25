@@ -22,7 +22,7 @@ int __main (int argc, char *argv[]){
 
     //do_testls191();
 
-    computer_sim();
+    //computer_sim();
 
     return 0;
 }
@@ -33,6 +33,7 @@ print_hello (GtkWidget *widget,
              gpointer   data)
 {
   g_print ("Hello World\n");
+  //computer_sim();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,17 +57,25 @@ activate (GtkApplication* app,
   gtk_container_add (GTK_CONTAINER (button_box), button);
 
   gtk_widget_show_all (window);
+
+  //computer_sim();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 int main (int argc, char **argv)
 {
-  int status;
+//  int status;
+//
+//  GtkApplication *app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+//  g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+//  status = g_application_run (G_APPLICATION (app), argc, argv);
+//  g_object_unref (app);
+//
+//  return status;
 
-  GtkApplication *app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
-  g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
-  status = g_application_run (G_APPLICATION (app), argc, argv);
-  g_object_unref (app);
+    computer_t *comp = computer_sim_begin();
 
-  return status;
+    computer_sim_run(comp);
+
+    computer_sim_end(comp);
 }
