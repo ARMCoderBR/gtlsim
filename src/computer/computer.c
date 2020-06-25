@@ -227,6 +227,7 @@ computer_t *computer_sim_begin(){
     ctrunit_connect_out_co(comp->ctru, comp->pctr, (void*)&progctr_in_oenable);
     ctrunit_connect_out_j(comp->ctru, comp->pctr, (void*)&progctr_in_load);
 
+    board_run(comp->ctx, comp->ec, comp->mainboard);
     return comp;
 }
     ////////////////
@@ -236,17 +237,19 @@ computer_t *computer_sim_begin(){
 ////////////////////////////////////////////////////////////////////////////////
 void computer_sim_run(computer_t *comp){
 
-    pthread_t sim_thread;
-    pthread_create(&sim_thread, NULL, exmachina_thread, comp->ctx);
-    pthread_detach(sim_thread);
+//    pthread_t sim_thread;
+//    pthread_create(&sim_thread, NULL, exmachina_thread, comp->ctx);
+//    pthread_detach(sim_thread);
 
-    board_run(comp->ctx, comp->ec, comp->mainboard);
     board_run_b(comp->ctx, comp->ec, comp->mainboard);
-    board_run_c(comp->ctx, comp->ec, comp->mainboard);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void computer_sim_end(computer_t *comp){
+
+    board_run_c(comp->ctx, comp->ec, comp->mainboard);
+
+    logger_end(comp->ec);
 
     int i;
 

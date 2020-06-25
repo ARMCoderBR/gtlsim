@@ -57,5 +57,4 @@ void computer_sim_run(computer_t *comp);
 
 void computer_sim_end(computer_t *comp);
 
-
 #endif /* SRC_COMPUTER_COMPUTER_H_ */
