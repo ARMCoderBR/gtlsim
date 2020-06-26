@@ -15,7 +15,7 @@
 #include "computer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-void computer_sim_begin(computer_t *comp, GtkWidget *grid){
+void computer_sim_begin(computer_t *comp, GtkGrid *grid){
 
     comp->ctx = board_init();
 

@@ -53,7 +53,7 @@ typedef struct {
 } computer_t;
 
 
-void computer_sim_begin(computer_t *comp, GtkWidget *grid);
+void computer_sim_begin(computer_t *comp, GtkGrid *grid);
 
 void computer_sim_run(computer_t *comp);
 

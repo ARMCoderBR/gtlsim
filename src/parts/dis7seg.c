@@ -40,8 +40,8 @@ void *persist_function(void *args){
 					o->segmap = o->presegmap;
 					if (o->segmap_old != o->segmap){
 					      o->segmap_old = o->segmap;
-					      if (o->refreshable)
-					          board_set_refresh(o->ec->bctx);
+					      if (o->callback)
+					          o->callback(o->cb_target);
 					}
 			}
         }
@@ -51,8 +51,8 @@ void *persist_function(void *args){
             --o->count_persist;
 
             if (!o->count_persist){
-            	if (o->refreshable)
-            		board_set_refresh(o->ec->bctx);
+            	if (o->callback)
+            	    o->callback(o->cb_target);
             }
         }
     }
@@ -68,7 +68,7 @@ dis7seg *dis7seg_create(event_context_t *ec, dis7seg_type type, char *name){
     if (o == NULL)
         return NULL;
 
-    o->ec = ec;
+    o->cb_target = ec->bctx;
 
     if (name)
         strncpy(o->name, name, sizeof(o->name));
@@ -88,6 +88,8 @@ dis7seg *dis7seg_create(event_context_t *ec, dis7seg_type type, char *name){
     o->common_val = o->common_val_old = 0;
 
     pthread_create(&o->persist_thread, NULL, persist_function, o);
+
+    o->callback = NULL;
 
     o->destroy = (void*)dis7seg_destroy;
 

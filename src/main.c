@@ -30,47 +30,44 @@ static void
 activate (GtkApplication* app,
           gpointer        comp) {
 
-  GtkWidget *window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (window), "Window");
-  //gtk_window_set_default_size (GTK_WINDOW (window), 400, 200);
+    GtkWidget *window = gtk_application_window_new (app);
+    gtk_window_set_title (GTK_WINDOW (window), "Window");
+    //gtk_window_set_default_size (GTK_WINDOW (window), 400, 200);
 
-  GtkWidget *main_grid = gtk_grid_new();//gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
-  gtk_container_add (GTK_CONTAINER (window), main_grid);
+    GtkWidget *main_grid = gtk_grid_new();//gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+    gtk_container_add (GTK_CONTAINER (window), main_grid);
 
-  GtkWidget *button = gtk_button_new_with_label ("Hello World");
-  GtkWidget *button2 = gtk_button_new_with_label ("Exit");
+    GtkWidget *button = gtk_button_new_with_label ("Hello World");
+    GtkWidget *button2 = gtk_button_new_with_label ("Exit");
 
-  g_signal_connect (button, "clicked", G_CALLBACK (print_hello), comp);
-  g_signal_connect_swapped (button2, "clicked", G_CALLBACK (gtk_widget_destroy), window);
-  gtk_grid_attach ((GtkGrid*)main_grid, button, 1, 1, 1, 1);
-  gtk_grid_attach ((GtkGrid*)main_grid, button2, 2, 1, 1, 1);
+    g_signal_connect (button, "clicked", G_CALLBACK (print_hello), comp);
+    g_signal_connect_swapped (button2, "clicked", G_CALLBACK (gtk_widget_destroy), window);
 
+    gtk_grid_attach ((GtkGrid*)main_grid, button, 1, 1, 1, 1);
+    gtk_grid_attach ((GtkGrid*)main_grid, button2, 2, 1, 1, 1);
 
-  computer_sim_begin(comp, main_grid);
+    computer_sim_begin(comp, (GtkGrid*)main_grid);
 
-
-  gtk_widget_show_all (window);
-
-  //computer_sim_end(comp);
+    gtk_widget_show_all (window);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int main (int argc, char **argv)
-{
-  int status;
+int main (int argc, char **argv) {
 
-  computer_t *comp = malloc(sizeof(computer_t));
-  memset(comp, 0, sizeof(computer_t));
+    int status;
 
-  GtkApplication *app = gtk_application_new ("cpstecnologia.com.br", G_APPLICATION_FLAGS_NONE);
+    computer_t *comp = malloc(sizeof(computer_t));
+    memset(comp, 0, sizeof(computer_t));
 
-  g_signal_connect (app, "activate", G_CALLBACK (activate), comp);
+    GtkApplication *app = gtk_application_new ("cpstecnologia.com.br", G_APPLICATION_FLAGS_NONE);
 
-  status = g_application_run (G_APPLICATION (app), argc, argv);
+    g_signal_connect (app, "activate", G_CALLBACK (activate), comp);
 
-  computer_sim_end(comp);
+    status = g_application_run (G_APPLICATION (app), argc, argv);
 
-  g_object_unref (app);
+    computer_sim_end(comp);
 
-  return status;
+    g_object_unref (app);
+
+    return status;
 }

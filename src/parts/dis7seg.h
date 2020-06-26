@@ -12,6 +12,8 @@
 
 #include <pthread.h>
 
+#include "indicator.h"
+
 #include "update.h"
 
 #define MSK_DP 0x80
@@ -41,12 +43,13 @@ typedef struct  {
     int segmap, segmap_old;
     int presegmap;
     dis7seg_type type;
-    bool_t refreshable;
+    indicator_refresh_t callback;
+    void *cb_target;
     bool_t running;
     pthread_t persist_thread;
     int count_persist;
     int delay_latch_display;
-    event_context_t *ec;
+    //event_context_t *ec;
 } dis7seg;
 
 dis7seg *dis7seg_create(event_context_t *ec, dis7seg_type type, char *name);
