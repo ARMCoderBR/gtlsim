@@ -15,10 +15,7 @@
 #include "computer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-computer_t *computer_sim_begin(){
-
-    computer_t *comp = malloc(sizeof(computer_t));
-    memset(comp, 0, sizeof(computer_t));
+void computer_sim_begin(computer_t *comp, GtkWidget *grid){
 
     comp->ctx = board_init();
 
@@ -228,7 +225,6 @@ computer_t *computer_sim_begin(){
     ctrunit_connect_out_j(comp->ctru, comp->pctr, (void*)&progctr_in_load);
 
     board_run(comp->ctx, comp->ec, comp->mainboard);
-    return comp;
 }
     ////////////////
 

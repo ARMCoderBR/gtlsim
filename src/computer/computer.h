@@ -10,6 +10,8 @@
 #ifndef SRC_COMPUTER_COMPUTER_H_
 #define SRC_COMPUTER_COMPUTER_H_
 
+#include <gtk/gtk.h>
+
 #include "reg_8bit.h"
 #include "alu_8bit.h"
 #include "ram_8bit.h"
@@ -51,7 +53,7 @@ typedef struct {
 } computer_t;
 
 
-computer_t *computer_sim_begin();
+void computer_sim_begin(computer_t *comp, GtkWidget *grid);
 
 void computer_sim_run(computer_t *comp);
 

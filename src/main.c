@@ -19,34 +19,35 @@
 ////////////////////////////////////////////////////////////////////////////////
 static void
 print_hello (GtkWidget *widget,
-             gpointer   data) {
+             gpointer   comp) {
 
     g_print ("Hello World\n");
-    computer_sim_run((computer_t*)data);
+    computer_sim_run((computer_t*)comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void
 activate (GtkApplication* app,
-          gpointer        user_data) {
-
-
-    //computer_sim_run(comp);
+          gpointer        comp) {
 
   GtkWidget *window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "Window");
   //gtk_window_set_default_size (GTK_WINDOW (window), 400, 200);
 
-  GtkWidget *button_box = gtk_grid_new();//gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
-  gtk_container_add (GTK_CONTAINER (window), button_box);
+  GtkWidget *main_grid = gtk_grid_new();//gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+  gtk_container_add (GTK_CONTAINER (window), main_grid);
 
   GtkWidget *button = gtk_button_new_with_label ("Hello World");
   GtkWidget *button2 = gtk_button_new_with_label ("Exit");
 
-  g_signal_connect (button, "clicked", G_CALLBACK (print_hello), user_data);
+  g_signal_connect (button, "clicked", G_CALLBACK (print_hello), comp);
   g_signal_connect_swapped (button2, "clicked", G_CALLBACK (gtk_widget_destroy), window);
-  gtk_grid_attach ((GtkGrid*)button_box, button, 1, 1, 1, 1);
-  gtk_grid_attach ((GtkGrid*)button_box, button2, 2, 1, 1, 1);
+  gtk_grid_attach ((GtkGrid*)main_grid, button, 1, 1, 1, 1);
+  gtk_grid_attach ((GtkGrid*)main_grid, button2, 2, 1, 1, 1);
+
+
+  computer_sim_begin(comp, main_grid);
+
 
   gtk_widget_show_all (window);
 
@@ -58,9 +59,11 @@ int main (int argc, char **argv)
 {
   int status;
 
-  computer_t *comp = computer_sim_begin();
+  computer_t *comp = malloc(sizeof(computer_t));
+  memset(comp, 0, sizeof(computer_t));
 
-  GtkApplication *app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+  GtkApplication *app = gtk_application_new ("cpstecnologia.com.br", G_APPLICATION_FLAGS_NONE);
+
   g_signal_connect (app, "activate", G_CALLBACK (activate), comp);
 
   status = g_application_run (G_APPLICATION (app), argc, argv);
