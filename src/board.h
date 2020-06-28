@@ -13,6 +13,8 @@
 #include <pthread.h>
 #include <sys/select.h>
 
+#include <gtk/gtk.h>
+
 #include "update.h"
 #include "bitswitch.h"
 #include "indicator.h"
@@ -55,6 +57,9 @@ typedef struct {
     int color;
     void/*board_object*/ *objptr_root;
     void/*board_object*/ *objptr_next;
+
+    /// For GTK
+    GtkGrid *board_grid;
 } board_object;
 
 #define MAX_FOCUSEABLES_BOARDS 50

@@ -17,6 +17,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <gtk/gtk.h>
+
 #include "update.h"
 #include "board.h"
 #include "bitswitch.h"
@@ -797,6 +799,9 @@ board_object *board_create(int width, int height, int key, char *name){
     b->objptr_next = NULL;
     //b->board_on_focus = b;  // Focada nela própria no início.
 
+
+    b->board_grid = gtk_grid_new();
+
     b->destroy = (void*)board_destroy;
     return b;
 }
@@ -940,6 +945,28 @@ int board_add_led(board_object *b, indicator *out, int pos_w, int pos_h, char *n
     obja->objptr_root = NULL;
     obja->objptr_next = NULL;
 
+    GtkImage *newimg;
+    switch(color){
+
+    case LED_GREEN:
+        newimg = gtk_image_new_from_file ("../led-green-off.png");
+        break;
+    case LED_YELLOW:
+        newimg = gtk_image_new_from_file ("../led-yellow-off.png");
+        break;
+    case LED_BLUE:
+        newimg = gtk_image_new_from_file ("../led-blue-off.png");
+        break;
+    default://case LED_RED:
+        newimg = gtk_image_new_from_file ("../led-red-off.png");
+        break;
+    }
+
+    GtkLabel *newlbl = gtk_label_new(name);
+
+    gtk_grid_attach (b->board_grid, (GtkWidget*)newimg, pos_w, pos_h, 1, 1);
+    gtk_grid_attach (b->board_grid, (GtkWidget*)newlbl, pos_w, 1+pos_h, 1, 1);
+
     return board_add_object(b, obja);
 }
 
@@ -1005,6 +1032,9 @@ int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h){
 
     board->pos_w = pos_w;
     board->pos_h = pos_h;
+
+    gtk_grid_attach (b->board_grid, board->board_grid, pos_w, pos_h, 1, 1);
+
     return board_add_object(b, board);
 }
 

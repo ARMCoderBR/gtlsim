@@ -15,7 +15,7 @@
 #include "computer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-void computer_sim_begin(computer_t *comp, GtkGrid *grid){
+void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
 
     comp->ctx = board_init();
 
@@ -23,6 +23,7 @@ void computer_sim_begin(computer_t *comp, GtkGrid *grid){
 
     sprintf(name,"BEN EATER'S COMPUTER SIM BY ARMCODER V%d.%d.%d",SW_VERSION, SW_REVISION, SW_MINOR);
     comp->mainboard = board_create(0,0,0,name);
+    gtk_grid_attach (maingrid, (GtkWidget*)comp->mainboard->board_grid, 3, 1, 1, 1);
 
     comp->ec = event_init();
     comp->ec->bctx = comp->ctx;
