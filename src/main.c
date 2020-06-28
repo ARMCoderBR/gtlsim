@@ -16,6 +16,11 @@
 
 #include <gtk/gtk.h>
 
+int state = 1;
+
+GtkImage * image1;
+GtkWidget *main_grid;
+
 ////////////////////////////////////////////////////////////////////////////////
 static void
 print_hello (GtkWidget *widget,
@@ -23,6 +28,13 @@ print_hello (GtkWidget *widget,
 
     g_print ("Hello World\n");
     computer_sim_run((computer_t*)comp);
+
+    state ^= 1;
+
+    if (state)
+        gtk_image_set_from_file (image1,"../led-red-on.png");
+    else
+        gtk_image_set_from_file (image1,"../led-red-off.png");
 }
 
 unsigned char pixbuf_red_on[]={
@@ -93,7 +105,7 @@ activate (GtkApplication* app,
     gtk_window_set_title (GTK_WINDOW (window), "Window");
     //gtk_window_set_default_size (GTK_WINDOW (window), 400, 200);
 
-    GtkWidget *main_grid = gtk_grid_new();//gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+    main_grid = gtk_grid_new();//gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_container_add (GTK_CONTAINER (window), main_grid);
 
     GtkWidget *button = gtk_button_new_with_label ("Hello World");
@@ -108,7 +120,7 @@ activate (GtkApplication* app,
 
 
 //    GtkImage * image1 = gtk_image_new_from_pixbuf ((GdkPixbuf*)pixbuf_red_on);
-    GtkImage * image1 = gtk_image_new_from_file ("../led-red-on.png");
+    image1 = gtk_image_new_from_file ("../led-red-on.png");
 //
 //
 //    GdkPixbuf * pBuf = gtk_image_get_pixbuf (image1);
