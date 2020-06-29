@@ -454,9 +454,9 @@ board_object *ram_8bit_board_create(ram_8bit *ram, int key, char *name){
         j = 7-i;
 
         sprintf(s,"D%d",i);
-        board_add_led(board, ram->leddata[i],21+4*j,1,s, LED_RED);
+        board_add_led(board, ram->leddata[i],5+j,1,s, LED_RED);
 
-        board_add_manual_switch(board, ram->progdata[i], 1+7*j, 7, '0'+i, s);
+        board_add_manual_switch(board, ram->progdata[i], 5+j, 3, '0'+i, s);
     }
 
     char ka[]="hjkl";
@@ -466,16 +466,16 @@ board_object *ram_8bit_board_create(ram_8bit *ram, int key, char *name){
         j = 3-i;
 
         sprintf(s,"A%d",i);
-        board_add_led(board, ram->ledaddr[i],37+4*j,4,s, LED_YELLOW);
-        board_add_manual_switch(board, ram->progaddr[i], 1+7*j, 10, ka[j], s);
+        board_add_led(board, ram->ledaddr[i],9+j,5,s, LED_YELLOW);
+        board_add_manual_switch(board, ram->progaddr[i], 9+j, 6, ka[j], s);
     }
 
 
-    board_add_manual_switch(board, ram->prog_run, 1, 4, 'p',"Pr/Run");
-    board_add_manual_switch(board, ram->progwrite, 48, 10, 'w',"Write");
+    board_add_manual_switch(board, ram->progwrite, 8, 6, 'w',"Write");
 
     board_add_led(board, ram->ledrun,1,1,"RUN", LED_GREEN);
-    board_add_led(board, ram->ledprog,5,1,"PRG", LED_RED);
+    board_add_led(board, ram->ledprog,2,1,"PRG", LED_RED);
+    board_add_manual_switch(board, ram->prog_run, 1, 3, 'p',"Pr/Run");
 
     return board;
 }
