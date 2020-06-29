@@ -800,7 +800,9 @@ board_object *board_create(int width, int height, int key, char *name){
     //b->board_on_focus = b;  // Focada nela própria no início.
 
 
+    b->board_frame = gtk_frame_new(name);
     b->board_grid = gtk_grid_new();
+    gtk_container_add (GTK_CONTAINER (b->board_frame), b->board_grid);
 
     b->destroy = (void*)board_destroy;
     return b;
@@ -957,6 +959,9 @@ int board_add_led(board_object *b, indicator *out, int pos_w, int pos_h, char *n
     case LED_BLUE:
         newimg = gtk_image_new_from_file ("../led-blue-off.png");
         break;
+    case LED_WHITE:
+        newimg = gtk_image_new_from_file ("../led-white-off.png");
+        break;
     default://case LED_RED:
         newimg = gtk_image_new_from_file ("../led-red-off.png");
         break;
@@ -1033,7 +1038,7 @@ int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h){
     board->pos_w = pos_w;
     board->pos_h = pos_h;
 
-    gtk_grid_attach (b->board_grid, board->board_grid, pos_w, pos_h, 1, 1);
+    gtk_grid_attach (b->board_grid, board->board_frame, pos_w, pos_h, 1, 1);
 
     return board_add_object(b, board);
 }

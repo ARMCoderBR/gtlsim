@@ -60,7 +60,7 @@ activate (GtkApplication* app,
 
     image1 = gtk_image_new_from_file ("../led-red-on.png");
 
-    gtk_grid_attach ((GtkGrid*)main_grid, image1, 1, 2, 1, 1);
+    gtk_grid_attach ((GtkGrid*)main_grid, image1, 3, 1, 1, 1);
 
     computer_sim_begin(comp, (GtkGrid*)main_grid);
 

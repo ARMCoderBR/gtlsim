@@ -59,6 +59,7 @@ typedef struct {
     void/*board_object*/ *objptr_next;
 
     /// For GTK
+    GtkFrame *board_frame;
     GtkGrid *board_grid;
 } board_object;
 
