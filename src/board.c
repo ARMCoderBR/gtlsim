@@ -889,7 +889,7 @@ int board_add_object(board_object *b, board_object *newobject){
 ////////////////////////////////////////////////////////////////////////////////
 void gtk_manual_switch_set_img(GtkImage *gtkimg, int swtype, int value){
 
-    printf("gtk_manual_switch_set_img()\n");
+    //printf("gtk_manual_switch_set_img()\n");
 
     if (value)
         gtk_image_set_from_file (gtkimg,"../switch-on.png");
@@ -902,7 +902,7 @@ static void
 bitswitch_toggle (GtkWidget *widget, GtkWidget *otherwidget,
              gpointer   ptr) {
 
-    printf("bs toggle(%p)\n",ptr);
+    //printf("bs toggle(%p)\n",ptr);
 
     bitswitch* bs = (bitswitch*)ptr;
 
@@ -919,7 +919,7 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
   F1[0< 1]
   UP/DOWN
 */
-    printf("board_add_manual_switch(%s, %p)\n",name, bs);
+    //printf("board_add_manual_switch(%s, %p)\n",name, bs);
 
     if (!b) return -2;
     if (!bs) return -2;
@@ -954,13 +954,13 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
     gtk_grid_attach (b->board_grid, (GtkWidget*)newlbl, pos_w, 1+pos_h, 1, 1);
 
     //gtk_widget_set_events (ebox, GDK_BUTTON_PRESS_MASK);
-    printf("g_signal_connect bs:%p\n",bs);
+    //printf("g_signal_connect bs:%p\n",bs);
     g_signal_connect (ebox, "button_press_event", G_CALLBACK (bitswitch_toggle), bs);
 
     /* Yet one more thing you need an X window for ... */
 
-    gtk_widget_realize ((GtkWidget*)ebox);
-    //gdk_window_set_cursor (ebox->window, gdk_cursor_new (GDK_HAND1));
+    //gtk_widget_realize ((GtkWidget*)ebox);
+    //gdk_window_set_cursor (gtk_widget_get_window(ebox), gdk_cursor_new_for_display (gdk_display_get_default(), GDK_HAND1));
 
     return board_add_object(b, obja);
 }
