@@ -41,7 +41,7 @@ void *persist_function(void *args){
 					if (o->segmap_old != o->segmap){
 					      o->segmap_old = o->segmap;
 					      if (o->callback)
-					          o->callback(o->cb_target);
+					          o->callback(o->cb_target, o->segmap);
 					}
 			}
         }
@@ -52,7 +52,7 @@ void *persist_function(void *args){
 
             if (!o->count_persist){
             	if (o->callback)
-            	    o->callback(o->cb_target);
+            	    o->callback(o->cb_target, o->segmap);
             }
         }
     }

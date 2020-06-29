@@ -12,7 +12,7 @@
 
 #include "update.h"
 
-typedef void (*indicator_refresh_t)(void *pvalue);
+typedef void (*indicator_refresh_t)(void *ptarget, int value);
 
 typedef struct  {
 
