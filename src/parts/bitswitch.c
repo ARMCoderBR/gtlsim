@@ -30,6 +30,9 @@ bitswitch *bitswitch_create(event_context_t *ec, char *name){
     else
         b->name[0] = 0;
 
+    b->callback = NULL;
+    b->cb_target = NULL;
+
     b->destroy = (void*)bitswitch_destroy;
 
     return b;
@@ -61,6 +64,9 @@ void bitswitch_setval(bitswitch *s, bitvalue_t val){
     s->value = val;
 
     if (s->oldvalue != s->value){
+
+        if (s->callback)
+            s->callback(s->cb_target, s->value);
 
         logger(s->ec, "\n== bitswitch_setval [%s] val:%d",s->name,val);
 
