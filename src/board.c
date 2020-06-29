@@ -914,7 +914,62 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
     obja->objptr_root = NULL;
     obja->objptr_next = NULL;
 
+    GtkImage *newimg;
+
+    if (bs->value)
+        newimg = gtk_image_new_from_file ("../switch-on.png");
+    else
+        newimg = gtk_image_new_from_file ("../switch-off.png");
+
+    GtkLabel *newlbl = gtk_label_new(name);
+
+    gtk_grid_attach (b->board_grid, (GtkWidget*)newimg, pos_w, pos_h, 1, 1);
+    gtk_grid_attach (b->board_grid, (GtkWidget*)newlbl, pos_w, 1+pos_h, 1, 1);
+
+
     return board_add_object(b, obja);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+GtkImage *gtk_led_img(led_color_t color, int value){
+
+    GtkImage *newimg;
+
+    switch(color){
+
+    case LED_GREEN:
+        if (value)
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-green-on.png");
+        else
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-green-off.png");
+        break;
+    case LED_YELLOW:
+        if (value)
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-yellow-on.png");
+        else
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-yellow-off.png");
+        break;
+    case LED_BLUE:
+        if (value)
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-blue-on.png");
+        else
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-blue-off.png");
+        break;
+    case LED_WHITE:
+        if (value)
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-white-on.png");
+        else
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-white-off.png");
+        break;
+    default://case LED_RED:
+        if (value)
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-red-on.png");
+        else
+            newimg = (GtkImage *)gtk_image_new_from_file ("../led-red-off.png");
+        break;
+    }
+
+    return newimg;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -947,27 +1002,9 @@ int board_add_led(board_object *b, indicator *out, int pos_w, int pos_h, char *n
     obja->objptr_root = NULL;
     obja->objptr_next = NULL;
 
-    GtkImage *newimg;
-    switch(color){
+    GtkImage *newimg = gtk_led_img(color, out->value);
 
-    case LED_GREEN:
-        newimg = gtk_image_new_from_file ("../led-green-off.png");
-        break;
-    case LED_YELLOW:
-        newimg = gtk_image_new_from_file ("../led-yellow-off.png");
-        break;
-    case LED_BLUE:
-        newimg = gtk_image_new_from_file ("../led-blue-off.png");
-        break;
-    case LED_WHITE:
-        newimg = gtk_image_new_from_file ("../led-white-off.png");
-        break;
-    default://case LED_RED:
-        newimg = gtk_image_new_from_file ("../led-red-off.png");
-        break;
-    }
-
-    GtkLabel *newlbl = gtk_label_new(name);
+    GtkLabel *newlbl = (GtkLabel *)gtk_label_new(name);
 
     gtk_grid_attach (b->board_grid, (GtkWidget*)newimg, pos_w, pos_h, 1, 1);
     gtk_grid_attach (b->board_grid, (GtkWidget*)newlbl, pos_w, 1+pos_h, 1, 1);
