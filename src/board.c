@@ -31,6 +31,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+void gtk_manual_switch_set_img(void *ptarget, /*int swtype,*/ int value);
+void gtk_led_set_img(GtkImage *gtkimg, led_color_t color, int value);
+
 #define LINHAS_JANELA2 3
 #define LINHAS_JANELA2B (LINHAS_JANELA2+2)
 
@@ -454,7 +457,7 @@ void rectangle(WINDOW *wnd, int y1, int x1, int y2, int x2)
 ////////////////////////////////////////////////////////////////////////////////
 void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w){
 
-//    if (b->type != BOARD) return;   // Erro interno - nunca deve acontecer.
+    if (b->type != BOARD) return;   // Erro interno - nunca deve acontecer.
 //
 //    wattrset(bctx->janela1,A_NORMAL);
 //    rectangle(bctx->janela1, new_h, new_w, new_h+b->w_height-1, new_w+b->w_width-1);
@@ -468,19 +471,25 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 //    }
 //
 //    int has_key = 0;
-//    board_object *thisboard = b;
-//
-//    b = b->objptr_root;
-//
-//    while (b){
+    board_object *thisboard = b;
+
+    b = b->objptr_root;
+
+    while (b){
 //
 //        wmove(bctx->janela1, new_h + b->pos_h, new_w + b->pos_w);
 //
-//        switch (b->type){
-//
-//        case MANUAL_SWITCH:
-//            {
-//                bitswitch* bs = b->objptr;
+        switch (b->type){
+
+        case MANUAL_SWITCH:
+            {
+                bitswitch* bs = b->objptr;
+
+                if (bs->value != b->indicator_value){
+
+                    gtk_manual_switch_set_img(b->indicator, /*int swtype,*/ bs->value);
+                    b->indicator_value = bs->value;
+                }
 //                if (bs->value){
 //                    wattron(bctx->janela1,COLOR_PAIR(6));
 //                    waddstr(bctx->janela1,"[ "); waddch(bctx->janela1,ACS_DIAMOND); waddstr(bctx->janela1,"1]");
@@ -491,12 +500,19 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 //                    waddstr(bctx->janela1,"["); waddch(bctx->janela1,ACS_DIAMOND); waddstr(bctx->janela1," 1]");
 //                    wattroff(bctx->janela1,COLOR_PAIR(LED_WHITE));
 //                }
-//            }
-//            break;
-//
-//        case LED:
-//            {
-//                indicator* out = b->objptr;
+            }
+            break;
+
+        case LED:
+            {
+                indicator* out = b->objptr;
+
+                if (out->value != b->indicator_value){
+
+                    gtk_led_set_img(b->indicator, b->color, out->value);
+                    b->indicator_value = out->value;
+                }
+
 //                wattron(bctx->janela1,COLOR_PAIR(b->color));
 //                if (out->value){
 //                    wattron(bctx->janela1,A_STANDOUT);
@@ -505,15 +521,15 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 //                }else
 //                    waddstr(bctx->janela1,"[.]");
 //                wattroff(bctx->janela1,COLOR_PAIR(b->color));
-//            }
-//            break;
-//
-//        case DIS7SEG:
-//            {
+            }
+            break;
+
+        case DIS7SEG:
+            {
 //                dis7seg *dis = b->objptr;
 //                display_7seg(bctx->janela1, dis->segmap, dis->common_val|(dis->count_persist?1:0), new_w + b->pos_w, new_h + b->pos_h);
-//            }
-//            break;
+            }
+            break;
 //
 //        case XDIGIT:
 //            {
@@ -524,11 +540,11 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 //            }
 //            break;
 //
-//        case BOARD:
-//
-//            board_refresh_a(bctx, b/*->objptr_root*/,b->pos_h, b->pos_w);
-//            break;
-//        }
+        case BOARD:
+
+            board_refresh_a(pctx, b/*->objptr_root*/,b->pos_h, b->pos_w);
+            break;
+        }
 //
 //        if ((b->type != BOARD)&&(b->type != DIS7SEG)){
 //
@@ -565,8 +581,8 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 //            wattrset(bctx->janela1,A_NORMAL);
 //        }
 //
-//        b = b->objptr_next;
-//    }
+        b = b->objptr_next;
+    }
 //
 //    if (!bctx->focustable_done)
 //        if (has_key)
@@ -577,73 +593,73 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 ////////////////////////////////////////////////////////////////////////////////
 void board_refresh(project_ctx_t *pctx, board_object *b){
 
-    pthread_mutex_lock(&pctx->ncursesmutex);
-
+//    pthread_mutex_lock(&pctx->ncursesmutex);
+//
     board_refresh_a(pctx, b,0,0);
-
-    pctx->focustable_done = 1;
-
-//    wrefresh(bctx->janela1);
-//    wrefresh(bctx->janela0);
-
-    pthread_mutex_unlock(&pctx->ncursesmutex);
+//
+//    pctx->focustable_done = 1;
+//
+////    wrefresh(bctx->janela1);
+////    wrefresh(bctx->janela0);
+//
+//    pthread_mutex_unlock(&pctx->ncursesmutex);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void *refresh_thread(void *args){
-
-    project_ctx_t * pctx = (project_ctx_t *)args;
-    board_object * refboard = pctx->board;
-
-    pctx->refresh_run = 1;
-    char buf[16];
-
-    fd_set rreadfds;
-    struct timeval rtv;
-
-    pipe(pctx->piperefresh);
-    bool_t ref_pending = 0;
-
-    struct timespec lastspec, nowspec;
-    clock_gettime(CLOCK_REALTIME, &lastspec);
-
-    pctx->reader_ok = 1;
-
-    while (pctx->refresh_run){
-
-        FD_ZERO(&rreadfds);
-        FD_SET(pctx->piperefresh[0],&rreadfds);
-
-        rtv.tv_sec = 0;
-        rtv.tv_usec = 100000;
-
-        select(1+pctx->piperefresh[0],&rreadfds,NULL,NULL,&rtv);
-
-        if (FD_ISSET(pctx->piperefresh[0],&rreadfds)){
-
-            read(pctx->piperefresh[0], buf, sizeof(buf));
-            ref_pending = 1;
-        }
-
-        if (!ref_pending) continue;
-
-        clock_gettime(CLOCK_REALTIME, &nowspec);
-
-        int deltams = 1000 * (nowspec.tv_sec - lastspec.tv_sec);
-        deltams += (nowspec.tv_nsec - lastspec.tv_nsec) / 1000000;
-
-        if (deltams >= 40){
-
-            board_refresh(pctx, refboard);
-            lastspec = nowspec;
-            ref_pending = 0;
-        }
-        else
-            ref_pending = 1;
-    }
-
-    return NULL;
-}
+//////////////////////////////////////////////////////////////////////////////////
+//void *refresh_thread(void *args){
+//
+//    project_ctx_t * pctx = (project_ctx_t *)args;
+//    board_object * refboard = pctx->main_board;
+//
+//    pctx->refresh_run = 1;
+//    char buf[16];
+//
+//    fd_set rreadfds;
+//    struct timeval rtv;
+//
+//    pipe(pctx->piperefresh);
+//    bool_t ref_pending = 0;
+//
+//    struct timespec lastspec, nowspec;
+//    clock_gettime(CLOCK_REALTIME, &lastspec);
+//
+//    pctx->reader_ok = 1;
+//
+//    while (pctx->refresh_run){
+//
+//        FD_ZERO(&rreadfds);
+//        FD_SET(pctx->piperefresh[0],&rreadfds);
+//
+//        rtv.tv_sec = 0;
+//        rtv.tv_usec = 100000;
+//
+//        select(1+pctx->piperefresh[0],&rreadfds,NULL,NULL,&rtv);
+//
+//        if (FD_ISSET(pctx->piperefresh[0],&rreadfds)){
+//
+//            read(pctx->piperefresh[0], buf, sizeof(buf));
+//            ref_pending = 1;
+//        }
+//
+//        if (!ref_pending) continue;
+//
+//        clock_gettime(CLOCK_REALTIME, &nowspec);
+//
+//        int deltams = 1000 * (nowspec.tv_sec - lastspec.tv_sec);
+//        deltams += (nowspec.tv_nsec - lastspec.tv_nsec) / 1000000;
+//
+//        if (deltams >= 40){
+//
+//            board_refresh(pctx, refboard);
+//            lastspec = nowspec;
+//            ref_pending = 0;
+//        }
+//        else
+//            ref_pending = 1;
+//    }
+//
+//    return NULL;
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 void refresh_thread_stop(project_ctx_t *pctx){
@@ -978,15 +994,15 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
 
     gtk_manual_switch_set_img(newimg, /*0,*/ bs->value);
 
-    bs->callback = gtk_manual_switch_set_img;
-    bs->cb_target = newimg;
-
     GtkLabel *newlbl = (GtkLabel *)gtk_label_new(name);
 
     GtkEventBox *ebox = (GtkEventBox *)gtk_event_box_new();
     gtk_container_add (GTK_CONTAINER (ebox), (GtkWidget*)newimg);
     gtk_grid_attach (b->board_grid, (GtkWidget*)ebox, pos_w, pos_h, 1, 1);
     gtk_grid_attach (b->board_grid, (GtkWidget*)newlbl, pos_w, 1+pos_h, 1, 1);
+
+    obja->indicator = newimg;
+    obja->indicator_value = bs->value;
 
     //gtk_widget_set_events (ebox, GDK_BUTTON_PRESS_MASK);
     //printf("g_signal_connect bs:%p\n",bs);
@@ -1127,29 +1143,11 @@ int board_add_led(board_object *b, indicator *out, int pos_w, int pos_h, char *n
 
     GtkLabel *newlbl = (GtkLabel *)gtk_label_new(name);
 
-    switch(color){
-
-    case LED_GREEN:
-        out->callback = (indicator_refresh_t)gtk_led_img_update_green;
-        break;
-    case LED_YELLOW:
-        out->callback = (indicator_refresh_t)gtk_led_img_update_yellow;
-        break;
-    case LED_BLUE:
-        out->callback = (indicator_refresh_t)gtk_led_img_update_blue;
-        break;
-    case LED_WHITE:
-        out->callback = (indicator_refresh_t)gtk_led_img_update_white;
-        break;
-    default://case LED_RED:
-        out->callback = (indicator_refresh_t)gtk_led_img_update_red;
-        break;
-    }
-
-    out->cb_target = newimg;
-
     gtk_grid_attach (b->board_grid, (GtkWidget*)newimg, pos_w, pos_h, 1, 1);
     gtk_grid_attach (b->board_grid, (GtkWidget*)newlbl, pos_w, 1+pos_h, 1, 1);
+
+    obja->indicator = newimg;
+    obja->indicator_value = out->value;
 
     return board_add_object(b, obja);
 }
@@ -1251,7 +1249,7 @@ int board_run(project_ctx_t *ctx, event_context_t *ec, board_object *board){
 
     if (!ctx) exit(-3);
 
-    ctx->board = board;
+    ctx->main_board = board;
 
     pipe(ctx->pipekeys);
 
@@ -1298,7 +1296,7 @@ int board_run(project_ctx_t *ctx, event_context_t *ec, board_object *board){
 //    if (!board->w_height)
 //        board->w_height = ctx->TERM_LINES-LINHAS_JANELA2B;
 
-    desenha_janelas(ctx);
+    //desenha_janelas(ctx);
 
     clock_reinit(ctx);
 

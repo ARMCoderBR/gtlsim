@@ -21,9 +21,6 @@ typedef struct{
     ehandler *out_event_handler_root;
     char name[30];
     event_context_t *ec;
-    indicator_refresh_t callback;
-    void *cb_target;
-
 } bitswitch;
 
 bitswitch *bitswitch_create(event_context_t *ec, char *name);

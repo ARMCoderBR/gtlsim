@@ -19,8 +19,6 @@ static void indicator_up(indicator *o){
     if (o->oldvalue != o->value){
 
         o->oldvalue = o->value;
-        if (o->callback)
-            o->callback(o->cb_target, o->value);
     }
 }
 
@@ -31,8 +29,6 @@ indicator *indicator_create(event_context_t *ec, char *name){
 
     if (o == NULL)
         return NULL;
-
-    o->cb_target = ec->pctx;
 
     if (name)
         strncpy(o->name, name, sizeof(o->name));
@@ -45,9 +41,6 @@ indicator *indicator_create(event_context_t *ec, char *name){
     o->ind2_rootptr = NULL;
     o->ind3_rootptr = NULL;
     o->oldvalue = 0;
-    o->callback = NULL;
-    o->cb_target = NULL;
-
     o->destroy = (void*)indicator_destroy;
 
     return o;

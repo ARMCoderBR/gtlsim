@@ -21,9 +21,6 @@ typedef struct  {
     vallist *ind0_rootptr, *ind1_rootptr, *ind2_rootptr, *ind3_rootptr;
     uint8_t value;
     uint8_t oldvalue;
-    indicator_refresh_t callback;
-    void *cb_target;
-    //event_context_t *ec;
 } indicator;
 
 indicator *indicator_create(event_context_t *ec, char *name);

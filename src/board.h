@@ -61,6 +61,8 @@ typedef struct {
     /// For GTK
     GtkFrame *board_frame;
     GtkGrid *board_grid;
+    GtkWidget *indicator;
+    int indicator_value;
     void *parent_pctx;
 } board_object;
 
@@ -99,8 +101,10 @@ typedef struct {
     bool clock_slower_req;
     bool clock_faster_req;
 
+    // For GTK
     bitswitch *switch_to_toggle;
-    board_object * board;
+    board_object * main_board;
+
 } project_ctx_t;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -137,5 +141,6 @@ void board_write_key(project_ctx_t *pctx, int key);
 
 void board_add_clock_buttons(GtkGrid *maingrid, project_ctx_t *pctx);
 
+void board_refresh(project_ctx_t *pctx, board_object *b);
 
 #endif /* BOARD_H_ */
