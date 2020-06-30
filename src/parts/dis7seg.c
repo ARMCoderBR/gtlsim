@@ -68,7 +68,7 @@ dis7seg *dis7seg_create(event_context_t *ec, dis7seg_type type, char *name){
     if (o == NULL)
         return NULL;
 
-    o->cb_target = ec->bctx;
+    o->cb_target = ec->pctx;
 
     if (name)
         strncpy(o->name, name, sizeof(o->name));

@@ -19,7 +19,7 @@
 
 int state = 1;
 
-GtkImage * image1;
+//GtkImage * image1;
 GtkWidget *main_grid;
 
 pthread_t simthread;
@@ -33,12 +33,12 @@ print_hello (GtkWidget *widget,
     g_print ("Hello World\n");
     //computer_sim_run((computer_t*)comp);
 
-    state ^= 1;
-
-    if (state)
-        gtk_image_set_from_file (image1,"../led-red-on.png");
-    else
-        gtk_image_set_from_file (image1,"../led-red-off.png");
+//    state ^= 1;
+//
+//    if (state)
+//        gtk_image_set_from_file (image1,"../led-red-on.png");
+//    else
+//        gtk_image_set_from_file (image1,"../led-red-off.png");
 }
 
 
@@ -57,6 +57,11 @@ void *run_sim(void *args){
     return NULL;
 }
 
+gint timeout_callback (gpointer data){
+
+    computer_sim_run((computer_t*)data);
+    return 1;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 static void
@@ -79,13 +84,13 @@ activate (GtkApplication* app,
     gtk_grid_attach ((GtkGrid*)main_grid, button, 1, 1, 1, 1);
     gtk_grid_attach ((GtkGrid*)main_grid, button2, 2, 1, 1, 1);
 
-    image1 = gtk_image_new_from_file ("../led-red-on.png");
+    //image1 = gtk_image_new_from_file ("../led-red-on.png");
 
-    gtk_grid_attach ((GtkGrid*)main_grid, image1, 3, 1, 1, 1);
+    //gtk_grid_attach ((GtkGrid*)main_grid, image1, 3, 1, 1, 1);
 
     computer_sim_begin(comp, (GtkGrid*)main_grid);
 
-    pthread_create(&simthread, NULL, run_sim, comp);
+    //pthread_create(&simthread, NULL, run_sim, comp);
 
     gtk_widget_show_all (window);
 }
@@ -102,10 +107,15 @@ int main (int argc, char **argv) {
 
     g_signal_connect (app, "activate", G_CALLBACK (activate), comp);
 
+    /*gint*/ g_timeout_add (10,//guint32     interval,
+            timeout_callback,//GtkFunction function,
+                        comp//gpointer    data
+                        );
+
     status = g_application_run (G_APPLICATION (app), argc, argv);
 
-    running = 0;
-    pthread_join(simthread, NULL);
+    //running = 0;
+    //pthread_join(simthread, NULL);
 
     computer_sim_end(comp);
 

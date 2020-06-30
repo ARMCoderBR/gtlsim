@@ -26,16 +26,16 @@ const uint8_t demoprog[] = {
 const int LINES_PROG = sizeof(demoprog)/2;
 
 ////////////////////////////////////////////////////////////////////////////////
-void write_key(board_ctx_t *bctx, int key){
+void write_key(project_ctx_t *pctx, int key){
 
-    board_write_key(bctx, key);
+    board_write_key(pctx, key);
     usleep(100000);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *exmachina_thread(void *args){
 
-    board_ctx_t *bctx = args;
+    project_ctx_t *pctx = args;
     usleep(1000000);
 
     uint8_t addr = 0;
@@ -50,17 +50,17 @@ void *exmachina_thread(void *args){
 
         uint8_t deltaaddr = addr ^ newaddr;
         if (deltaaddr & 0x01){
-            write_key(bctx, 'l');
+            write_key(pctx, 'l');
         }
 
         if (deltaaddr & 0x02){
-            write_key(bctx, 'k');
+            write_key(pctx, 'k');
         }
         if (deltaaddr & 0x04){
-            write_key(bctx, 'j');
+            write_key(pctx, 'j');
         }
         if (deltaaddr & 0x08){
-            write_key(bctx, 'h');
+            write_key(pctx, 'h');
         }
 
         uint8_t deltadata = data ^ newdata;
@@ -71,25 +71,25 @@ void *exmachina_thread(void *args){
             if (deltadata & (1 << j)){
 
                 int key = '0' + j;
-                write_key(bctx, key);
+                write_key(pctx, key);
             }
         }
 
         addr = newaddr;
         data = newdata;
 
-        write_key(bctx, 'w');
-        write_key(bctx, 'w');
+        write_key(pctx, 'w');
+        write_key(pctx, 'w');
     }
 
-    write_key(bctx, 'p');
-    write_key(bctx, KEY_F(2));
+    write_key(pctx, 'p');
+    write_key(pctx, KEY_F(2));
 
-    write_key(bctx, 'r');
-    write_key(bctx, 'r');
+    write_key(pctx, 'r');
+    write_key(pctx, 'r');
 
     for (i = 0; i < 9; i++)
-        write_key(bctx, KEY_F(12));
+        write_key(pctx, KEY_F(12));
 
     return NULL;
 }

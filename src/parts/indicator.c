@@ -32,7 +32,7 @@ indicator *indicator_create(event_context_t *ec, char *name){
     if (o == NULL)
         return NULL;
 
-    o->cb_target = ec->bctx;
+    o->cb_target = ec->pctx;
 
     if (name)
         strncpy(o->name, name, sizeof(o->name));

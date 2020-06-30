@@ -17,24 +17,26 @@
 ////////////////////////////////////////////////////////////////////////////////
 void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
 
-    comp->ctx = board_init();
+    comp->pctx = project_init();
 
     char name[64];
 
     sprintf(name,"BEN EATER'S COMPUTER SIM BY ARMCODER V%d.%d.%d",SW_VERSION, SW_REVISION, SW_MINOR);
     comp->mainboard = board_create(0,0,0,name);
+    comp->mainboard->parent_pctx = comp->pctx;
+
     //gtk_grid_attach (maingrid, (GtkWidget*)comp->mainboard->board_grid, 3, 1, 1, 1);
     gtk_grid_attach (maingrid, (GtkWidget*)comp->mainboard->board_frame, 1, 2, 3, 1);
-    board_add_clock_buttons(maingrid, comp->ctx);
+    board_add_clock_buttons(maingrid, comp->pctx);
 
     comp->ec = event_init();
-    comp->ec->bctx = comp->ctx;
+    comp->ec->pctx = comp->pctx;
 
     logger_init(comp->ec);
 
     comp->mainclk = clkgen_create(comp->ec, "",1000000);
 
-    board_set_clk(comp->ctx, comp->mainclk);
+    board_set_clk(comp->pctx, comp->mainclk);
 
     //////// REGS //////////////////////////////////////////////////////////////
 
@@ -227,7 +229,7 @@ void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
     ctrunit_connect_out_co(comp->ctru, comp->pctr, (void*)&progctr_in_oenable);
     ctrunit_connect_out_j(comp->ctru, comp->pctr, (void*)&progctr_in_load);
 
-    board_run(comp->ctx, comp->ec, comp->mainboard);
+    board_run(comp->pctx, comp->ec, comp->mainboard);
 }
     ////////////////
 
@@ -240,13 +242,13 @@ void computer_sim_run(computer_t *comp){
 //    pthread_create(&sim_thread, NULL, exmachina_thread, comp->ctx);
 //    pthread_detach(sim_thread);
 
-    board_run_b(comp->ctx, comp->ec, comp->mainboard);
+    board_run_b(comp->pctx, comp->ec, comp->mainboard);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void computer_sim_end(computer_t *comp){
 
-    board_run_c(comp->ctx, comp->ec, comp->mainboard);
+    board_run_c(comp->pctx, comp->ec, comp->mainboard);
 
     logger_end(comp->ec);
 

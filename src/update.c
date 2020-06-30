@@ -27,7 +27,7 @@ event_context_t *event_init(void){
     ec->max_timestamp = 0;
     ec->logfile = NULL;
     ec->logging = 0;
-    ec->bctx = NULL;
+    ec->pctx = NULL;
     pthread_mutex_init(&ec->event_mutex,NULL);
 
     return ec;

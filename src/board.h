@@ -61,6 +61,7 @@ typedef struct {
     /// For GTK
     GtkFrame *board_frame;
     GtkGrid *board_grid;
+    void *parent_pctx;
 } board_object;
 
 #define MAX_FOCUSEABLES_BOARDS 50
@@ -94,8 +95,13 @@ typedef struct {
     bool_t clock_pausing;
     int iclk;
 
+    bool clock_pause_req;
+    bool clock_slower_req;
+    bool clock_faster_req;
+
+    bitswitch *switch_to_toggle;
     board_object * board;
-} board_ctx_t;
+} project_ctx_t;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,9 +117,9 @@ int board_add_xdigit(board_object *b, indicator *out, int pos_w, int pos_h, char
 int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h);
 int board_add_boardWH(board_object *b, board_object *board, int pos_w, int pos_h, int width, int heigth);
 
-int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board);
-int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board);
-int board_run_c(board_ctx_t *ctx, event_context_t *ec, board_object *board);
+int board_run(project_ctx_t *ctx, event_context_t *ec, board_object *board);
+int board_run_b(project_ctx_t *ctx, event_context_t *ec, board_object *board);
+int board_run_c(project_ctx_t *ctx, event_context_t *ec, board_object *board);
 
 board_object *board_create(int width, int height, int key, char *name);
 
@@ -121,15 +127,15 @@ void board_destroy(board_object **dest);
 
 board_object *mainboard_create(char *name);
 
-void board_set_clk(board_ctx_t *ctx, clkgen *clk);
+void board_set_clk(project_ctx_t *ctx, clkgen *clk);
 
-void board_set_refresh(board_ctx_t *ctx);
+void board_set_refresh(project_ctx_t *ctx);
 
-board_ctx_t *board_init(void);
+project_ctx_t *project_init(void);
 
-void board_write_key(board_ctx_t *bctx, int key);
+void board_write_key(project_ctx_t *pctx, int key);
 
-void board_add_clock_buttons(GtkGrid *maingrid, board_ctx_t *ctx);
+void board_add_clock_buttons(GtkGrid *maingrid, project_ctx_t *pctx);
 
 
 #endif /* BOARD_H_ */

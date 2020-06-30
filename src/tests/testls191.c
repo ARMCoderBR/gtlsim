@@ -79,9 +79,9 @@ board_object *testls191_board_create(testls191 *t, int key, char *name){
 ////////////////////////////////////////////////////////////////////////////////
 void do_testls191(){
 
-    board_ctx_t *ctx = board_init();
+    project_ctx_t *ctx = project_init();
     event_context_t *ev = event_init();
-    ev->bctx = ctx;
+    ev->pctx = ctx;
 
     testls191 *t191_1 = testls191_create(ev);
     testls191 *t191_2 = testls191_create(ev);

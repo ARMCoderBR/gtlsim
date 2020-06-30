@@ -26,7 +26,7 @@
 
 typedef struct {
 
-    board_ctx_t *ctx;
+    project_ctx_t *pctx;
     board_object *mainboard;
     event_context_t *ec;
     clkgen *mainclk;

@@ -16,7 +16,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include <time.h>
 #include <gtk/gtk.h>
 
 #include "update.h"
@@ -35,33 +35,36 @@
 #define LINHAS_JANELA2B (LINHAS_JANELA2+2)
 
 ////////////////////////////////////////////////////////////////////////////////
-board_ctx_t *board_init(void){
+project_ctx_t *project_init(void){
 
-    board_ctx_t *bctx = malloc(sizeof(board_ctx_t));
+    project_ctx_t *pctx = malloc(sizeof(project_ctx_t));
 
-    if (!bctx) exit(-1);//return NULL;
+    if (!pctx) exit(-1);//return NULL;
 
-    memset(bctx, 0, sizeof(board_ctx_t));
+    memset(pctx, 0, sizeof(project_ctx_t));
 
 //    bctx->TERM_LINES = 0;
 //    bctx->TERM_COLS = 0;
 
-    pthread_mutex_init(&bctx->setrefmutex, NULL);
-    bctx->reader_ok = 0;
+    pthread_mutex_init(&pctx->setrefmutex, NULL);
+    pctx->reader_ok = 0;
 
-    pthread_mutex_init(&bctx->ncursesmutex, NULL);
+    pthread_mutex_init(&pctx->ncursesmutex, NULL);
 
-    bctx->boardclk = NULL;
-    bctx->refresh_run = 0;
+    pctx->boardclk = NULL;
+    pctx->refresh_run = 0;
 
-    bctx->focustable_done = 0;
-    bctx->num_focuseable_boards = 0;
-    bctx->current_board_on_focus = 0;
+    pctx->focustable_done = 0;
+    pctx->num_focuseable_boards = 0;
+    pctx->current_board_on_focus = 0;
 
-    bctx->clock_pausing = 0;
-    bctx->iclk = 0;
+    pctx->clock_pausing = 0;
+    pctx->iclk = 0;
 
-    return bctx;
+    pctx->clock_faster_req = pctx->clock_slower_req = pctx->clock_pause_req = false;
+    pctx->switch_to_toggle = NULL;
+
+    return pctx;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +321,7 @@ void display_7seg(WINDOW *wnd, int segmap, int common, int pos_w, int pos_h){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void desenha_janelas(board_ctx_t *bctx)
+void desenha_janelas(project_ctx_t *pctx)
 {
 //    wbkgd(bctx->janela0,COLOR_PAIR(10));
 //    wbkgd(bctx->janela1,COLOR_PAIR(10));
@@ -346,54 +349,54 @@ void desenha_janelas(board_ctx_t *bctx)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void restart_handlers(board_ctx_t *bctx)
+void restart_handlers(project_ctx_t *pctx)
 {
     struct timeval tv;
 
-    FD_ZERO (&bctx->readfds);
-    FD_SET(0,&bctx->readfds);
-    FD_SET(bctx->pipekeys[0],&bctx->readfds);
+    FD_ZERO (&pctx->readfds);
+    FD_SET(0,&pctx->readfds);
+    FD_SET(pctx->pipekeys[0],&pctx->readfds);
 
     tv.tv_sec = 0;
     tv.tv_usec = 100;    // 100 us
 
-    select (1+bctx->pipekeys[0],&bctx->readfds,NULL,NULL,&tv);
+    select (1+pctx->pipekeys[0],&pctx->readfds,NULL,NULL,&tv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int received_key(board_ctx_t *bctx)
+int received_key(project_ctx_t *pctx)
 {
-    return (FD_ISSET(0,&bctx->readfds));
+    return (FD_ISSET(0,&pctx->readfds));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int received_key_simu(board_ctx_t *bctx)
+int received_key_simu(project_ctx_t *pctx)
 {
-    return (FD_ISSET(bctx->pipekeys[0],&bctx->readfds));
+    return (FD_ISSET(pctx->pipekeys[0],&pctx->readfds));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int read_key(board_ctx_t *bctx)
+int read_key(project_ctx_t *pctx)
 {
-//    pthread_mutex_lock(&bctx->ncursesmutex);
-//    int key = wgetch(bctx->janela1);
-//    pthread_mutex_unlock(&bctx->ncursesmutex);
+//    pthread_mutex_lock(&pctx->ncursesmutex);
+//    int key = wgetch(pctx->janela1);
+//    pthread_mutex_unlock(&pctx->ncursesmutex);
 //    return key;
     return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int read_key_simu(board_ctx_t *bctx)
+int read_key_simu(project_ctx_t *pctx)
 {
     int key;
-    read(bctx->pipekeys[0], &key, sizeof(int));
+    read(pctx->pipekeys[0], &key, sizeof(int));
     return key;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void board_write_key(board_ctx_t *bctx, int key)
+void board_write_key(project_ctx_t *pctx, int key)
 {
-    write(bctx->pipekeys[1], &key, sizeof(int));
+    write(pctx->pipekeys[1], &key, sizeof(int));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -408,7 +411,7 @@ void sigterm_handler(int sig){
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-void board_set_clk(board_ctx_t *ctx, clkgen *clk){
+void board_set_clk(project_ctx_t *ctx, clkgen *clk){
 
     if (!ctx) return;
 
@@ -421,7 +424,7 @@ void board_set_clk(board_ctx_t *ctx, clkgen *clk){
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-void board_set_refresh(board_ctx_t *ctx){
+void board_set_refresh(project_ctx_t *ctx){
 
     if (!ctx) return;
 
@@ -449,7 +452,7 @@ void rectangle(WINDOW *wnd, int y1, int x1, int y2, int x2)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void board_refresh_a(board_ctx_t *bctx, board_object *b, int new_h, int new_w){
+void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w){
 
 //    if (b->type != BOARD) return;   // Erro interno - nunca deve acontecer.
 //
@@ -572,53 +575,53 @@ void board_refresh_a(board_ctx_t *bctx, board_object *b, int new_h, int new_w){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void board_refresh(board_ctx_t *bctx, board_object *b){
+void board_refresh(project_ctx_t *pctx, board_object *b){
 
-    pthread_mutex_lock(&bctx->ncursesmutex);
+    pthread_mutex_lock(&pctx->ncursesmutex);
 
-    board_refresh_a(bctx, b,0,0);
+    board_refresh_a(pctx, b,0,0);
 
-    bctx->focustable_done = 1;
+    pctx->focustable_done = 1;
 
 //    wrefresh(bctx->janela1);
 //    wrefresh(bctx->janela0);
 
-    pthread_mutex_unlock(&bctx->ncursesmutex);
+    pthread_mutex_unlock(&pctx->ncursesmutex);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *refresh_thread(void *args){
 
-    board_ctx_t * bctx = (board_ctx_t *)args;
-    board_object * refboard = bctx->board;
+    project_ctx_t * pctx = (project_ctx_t *)args;
+    board_object * refboard = pctx->board;
 
-    bctx->refresh_run = 1;
+    pctx->refresh_run = 1;
     char buf[16];
 
     fd_set rreadfds;
     struct timeval rtv;
 
-    pipe(bctx->piperefresh);
+    pipe(pctx->piperefresh);
     bool_t ref_pending = 0;
 
     struct timespec lastspec, nowspec;
     clock_gettime(CLOCK_REALTIME, &lastspec);
 
-    bctx->reader_ok = 1;
+    pctx->reader_ok = 1;
 
-    while (bctx->refresh_run){
+    while (pctx->refresh_run){
 
         FD_ZERO(&rreadfds);
-        FD_SET(bctx->piperefresh[0],&rreadfds);
+        FD_SET(pctx->piperefresh[0],&rreadfds);
 
         rtv.tv_sec = 0;
         rtv.tv_usec = 100000;
 
-        select(1+bctx->piperefresh[0],&rreadfds,NULL,NULL,&rtv);
+        select(1+pctx->piperefresh[0],&rreadfds,NULL,NULL,&rtv);
 
-        if (FD_ISSET(bctx->piperefresh[0],&rreadfds)){
+        if (FD_ISSET(pctx->piperefresh[0],&rreadfds)){
 
-            read(bctx->piperefresh[0], buf, sizeof(buf));
+            read(pctx->piperefresh[0], buf, sizeof(buf));
             ref_pending = 1;
         }
 
@@ -631,7 +634,7 @@ void *refresh_thread(void *args){
 
         if (deltams >= 40){
 
-            board_refresh(bctx, refboard);
+            board_refresh(pctx, refboard);
             lastspec = nowspec;
             ref_pending = 0;
         }
@@ -643,15 +646,15 @@ void *refresh_thread(void *args){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void refresh_thread_stop(board_ctx_t *bctx){
+void refresh_thread_stop(project_ctx_t *pctx){
 
-    bctx->refresh_run = 0;
-    //pthread_join(bctx->refthread,NULL);
+    pctx->refresh_run = 0;
+    //pthread_join(pctx->refthread,NULL);
 
-    bctx->reader_ok = 0;
+    pctx->reader_ok = 0;
 
-    close(bctx->piperefresh[0]);
-    close(bctx->piperefresh[1]);
+    close(pctx->piperefresh[0]);
+    close(pctx->piperefresh[1]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -675,7 +678,7 @@ const int CLKS_PERIOD_US[NCLKS] = {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-void clock_redraw(board_ctx_t *bctx){
+void clock_redraw(project_ctx_t *pctx){
 
 //    pthread_mutex_lock(&bctx->ncursesmutex);
 //
@@ -708,70 +711,70 @@ void clock_redraw(board_ctx_t *bctx){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void clock_reinit(board_ctx_t *bctx){
+void clock_reinit(project_ctx_t *pctx){
 
-    int clock_period_us = CLKS_PERIOD_US[bctx->iclk];
-    clkgen_set_us(bctx->boardclk, clock_period_us);
-    clock_redraw(bctx);
+    int clock_period_us = CLKS_PERIOD_US[pctx->iclk];
+    clkgen_set_us(pctx->boardclk, clock_period_us);
+    clock_redraw(pctx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void clock_faster(board_ctx_t *bctx){
+void clock_faster(project_ctx_t *pctx){
 
-    if (bctx->clock_pausing){
+    if (pctx->clock_pausing){
 
-        bctx->clock_pausing = 0;
-        clkgen_pause(bctx->boardclk, bctx->clock_pausing);
-        clock_redraw(bctx);
+        pctx->clock_pausing = 0;
+        clkgen_pause(pctx->boardclk, pctx->clock_pausing);
+        clock_redraw(pctx);
         return;
     }
 
-    if (bctx->iclk < (NCLKS-1)){
+    if (pctx->iclk < (NCLKS-1)){
 
-        bctx->iclk++;
-        int clock_period_us = CLKS_PERIOD_US[bctx->iclk];
-        clkgen_set_us(bctx->boardclk, clock_period_us);
-        clock_redraw(bctx);
+        pctx->iclk++;
+        int clock_period_us = CLKS_PERIOD_US[pctx->iclk];
+        clkgen_set_us(pctx->boardclk, clock_period_us);
+        clock_redraw(pctx);
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void clock_slower(board_ctx_t *bctx){
+void clock_slower(project_ctx_t *pctx){
 
-    if (bctx->clock_pausing){
+    if (pctx->clock_pausing){
 
-        bctx->clock_pausing = 0;
-        clkgen_pause(bctx->boardclk, bctx->clock_pausing);
-        clock_redraw(bctx);
+        pctx->clock_pausing = 0;
+        clkgen_pause(pctx->boardclk, pctx->clock_pausing);
+        clock_redraw(pctx);
         return;
     }
 
-    if (bctx->iclk > 0){
+    if (pctx->iclk > 0){
 
-        bctx->iclk--;
-        int clock_period_us = CLKS_PERIOD_US[bctx->iclk];
-        clkgen_set_us(bctx->boardclk, clock_period_us);
-        clock_redraw(bctx);
+        pctx->iclk--;
+        int clock_period_us = CLKS_PERIOD_US[pctx->iclk];
+        clkgen_set_us(pctx->boardclk, clock_period_us);
+        clock_redraw(pctx);
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void clock_pause(board_ctx_t *bctx){
+void clock_pause(project_ctx_t *pctx){
 
-    if (!bctx->clock_pausing){
+    if (!pctx->clock_pausing){
 
-        bctx->clock_pausing = 1;
-        clkgen_pause(bctx->boardclk, bctx->clock_pausing);
-        clock_redraw(bctx);
+        pctx->clock_pausing = 1;
+        clkgen_pause(pctx->boardclk, pctx->clock_pausing);
+        clock_redraw(pctx);
         return;
     }
     else{
 
-        clkgen_step(bctx->boardclk);
+        clkgen_step(pctx->boardclk);
         usleep(10000);
     }
 
-    clock_redraw(bctx);
+    clock_redraw(pctx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -800,9 +803,9 @@ board_object *board_create(int width, int height, int key, char *name){
     //b->board_on_focus = b;  // Focada nela própria no início.
 
 
-    b->board_frame = gtk_frame_new(name);
-    b->board_grid = gtk_grid_new();
-    gtk_container_add (GTK_CONTAINER (b->board_frame), b->board_grid);
+    b->board_frame = (GtkFrame*)gtk_frame_new(name);
+    b->board_grid = (GtkGrid*)gtk_grid_new();
+    gtk_container_add (GTK_CONTAINER (b->board_frame), (GtkWidget*)b->board_grid);
 
     b->destroy = (void*)board_destroy;
     return b;
@@ -864,12 +867,30 @@ board_object *mainboard_create(char *name){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void propagate_parent_ctx(board_object *b){
+
+    if (!b) return;
+    if (b->type != BOARD) return;   // Folha da árvore, não tem filhos, retorna.
+
+    board_object *pb = b->objptr_root;
+
+    while (pb){
+
+        pb->parent_pctx = b->parent_pctx;
+        propagate_parent_ctx(pb);
+        pb = pb->objptr_next;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 int board_add_object(board_object *b, board_object *newobject){
 
     if (!b) return -2;
     if (!newobject) return -2;
 
     if (b->type != BOARD) return -10;
+
+    newobject->parent_pctx = b->parent_pctx;
 
     board_object *pb = b->objptr_root;
 
@@ -883,18 +904,30 @@ int board_add_object(board_object *b, board_object *newobject){
 
     newobject->objptr_next = NULL;  // Dupla garantia.
 
+    propagate_parent_ctx(newobject);
+
     return 0;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void gtk_manual_switch_set_img(GtkImage *gtkimg, int swtype, int value){
 
-    //printf("gtk_manual_switch_set_img()\n");
+static GdkPixbuf *switch_on, *switch_off;
+static bool switch_pixbuf_initted = false;
+
+
+////////////////////////////////////////////////////////////////////////////////
+void gtk_manual_switch_set_img(void *ptarget, /*int swtype,*/ int value){
+
+    if (!switch_pixbuf_initted){
+
+        switch_on = gdk_pixbuf_new_from_file("../switch-on.png",NULL);
+        switch_off = gdk_pixbuf_new_from_file("../switch-off.png",NULL);
+        switch_pixbuf_initted = true;
+    }
 
     if (value)
-        gtk_image_set_from_file (gtkimg,"../switch-on.png");
+        gtk_image_set_from_pixbuf ((GtkImage *)ptarget, switch_on);
     else
-        gtk_image_set_from_file (gtkimg,"../switch-off.png");
+        gtk_image_set_from_pixbuf ((GtkImage *)ptarget, switch_off);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -904,9 +937,11 @@ bitswitch_toggle (GtkWidget *widget, GtkWidget *otherwidget,
 
     //printf("bs toggle(%p)\n",ptr);
 
-    bitswitch* bs = (bitswitch*)ptr;
+    board_object *bo = ptr;
 
-    bitswitch_setval(bs, bs->value ?0:1);
+    bitswitch* bs = bo->objptr;//(bitswitch*)ptr;
+    ((project_ctx_t*)bo->parent_pctx)->switch_to_toggle = bs;
+    //bitswitch_setval(bs, bs->value ?0:1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -941,7 +976,7 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
 
     GtkImage *newimg = (GtkImage *)gtk_image_new();
 
-    gtk_manual_switch_set_img(newimg, 0, bs->value);
+    gtk_manual_switch_set_img(newimg, /*0,*/ bs->value);
 
     bs->callback = gtk_manual_switch_set_img;
     bs->cb_target = newimg;
@@ -955,7 +990,7 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
 
     //gtk_widget_set_events (ebox, GDK_BUTTON_PRESS_MASK);
     //printf("g_signal_connect bs:%p\n",bs);
-    g_signal_connect (ebox, "button_press_event", G_CALLBACK (bitswitch_toggle), bs);
+    g_signal_connect (ebox, "button_press_event", G_CALLBACK (bitswitch_toggle), obja/*bs*/);
 
     /* Yet one more thing you need an X window for ... */
 
@@ -965,40 +1000,64 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
     return board_add_object(b, obja);
 }
 
+
+static GdkPixbuf *led_green_on, *led_green_off;
+static GdkPixbuf *led_yellow_on, *led_yellow_off;
+static GdkPixbuf *led_blue_on, *led_blue_off;
+static GdkPixbuf *led_white_on, *led_white_off;
+static GdkPixbuf *led_red_on, *led_red_off;
+static bool led_pixbuf_initted = false;
+
 ////////////////////////////////////////////////////////////////////////////////
 void gtk_led_set_img(GtkImage *gtkimg, led_color_t color, int value){
+
+    if (!led_pixbuf_initted){
+
+        led_green_on  = gdk_pixbuf_new_from_file("../led-green-on.png",NULL);
+        led_green_off = gdk_pixbuf_new_from_file("../led-green-off.png",NULL);
+        led_yellow_on  = gdk_pixbuf_new_from_file("../led-yellow-on.png",NULL);
+        led_yellow_off = gdk_pixbuf_new_from_file("../led-yellow-off.png",NULL);
+        led_blue_on  = gdk_pixbuf_new_from_file("../led-blue-on.png",NULL);
+        led_blue_off = gdk_pixbuf_new_from_file("../led-blue-off.png",NULL);
+        led_white_on  = gdk_pixbuf_new_from_file("../led-white-on.png",NULL);
+        led_white_off = gdk_pixbuf_new_from_file("../led-white-off.png",NULL);
+        led_red_on  = gdk_pixbuf_new_from_file("../led-red-on.png",NULL);
+        led_red_off = gdk_pixbuf_new_from_file("../led-red-off.png",NULL);
+
+        led_pixbuf_initted = true;
+    }
 
     switch(color){
 
     case LED_GREEN:
         if (value)
-            gtk_image_set_from_file (gtkimg,"../led-green-on.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_green_on);
         else
-            gtk_image_set_from_file (gtkimg,"../led-green-off.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_green_off);
         break;
     case LED_YELLOW:
         if (value)
-            gtk_image_set_from_file (gtkimg,"../led-yellow-on.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_yellow_on);
         else
-            gtk_image_set_from_file (gtkimg,"../led-yellow-off.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_yellow_off);
         break;
     case LED_BLUE:
         if (value)
-            gtk_image_set_from_file (gtkimg,"../led-blue-on.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_blue_on);
         else
-            gtk_image_set_from_file (gtkimg,"../led-blue-off.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_blue_off);
         break;
     case LED_WHITE:
         if (value)
-            gtk_image_set_from_file (gtkimg,"../led-white-on.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_white_on);
         else
-            gtk_image_set_from_file (gtkimg,"../led-white-off.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_white_off);
         break;
     default://case LED_RED:
         if (value)
-            gtk_image_set_from_file (gtkimg,"../led-red-on.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_red_on);
         else
-            gtk_image_set_from_file (gtkimg,"../led-red-off.png");
+            gtk_image_set_from_pixbuf (gtkimg, led_red_off);
         break;
     }
 }
@@ -1063,7 +1122,7 @@ int board_add_led(board_object *b, indicator *out, int pos_w, int pos_h, char *n
     obja->objptr_root = NULL;
     obja->objptr_next = NULL;
 
-    GtkImage *newimg = gtk_image_new();
+    GtkImage *newimg = (GtkImage *)gtk_image_new();
     gtk_led_set_img(newimg, color, out->value);
 
     GtkLabel *newlbl = (GtkLabel *)gtk_label_new(name);
@@ -1158,7 +1217,7 @@ int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h){
     board->pos_w = pos_w;
     board->pos_h = pos_h;
 
-    gtk_grid_attach (b->board_grid, board->board_frame, pos_w, pos_h, 1, 1);
+    gtk_grid_attach (b->board_grid, (GtkWidget*)board->board_frame, pos_w, pos_h, 1, 1);
 
     return board_add_object(b, board);
 }
@@ -1172,7 +1231,7 @@ int board_add_boardWH(board_object *b, board_object *board, int pos_w, int pos_h
     board->pos_w = pos_w;
     board->pos_h = pos_h;
 
-    gtk_grid_attach (b->board_grid, board->board_frame, pos_w, pos_h, width, heigth);
+    gtk_grid_attach (b->board_grid, (GtkWidget*)board->board_frame, pos_w, pos_h, width, heigth);
 
     return board_add_object(b, board);
 }
@@ -1188,7 +1247,7 @@ void board_initialize(void){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board){
+int board_run(project_ctx_t *ctx, event_context_t *ec, board_object *board){
 
     if (!ctx) exit(-3);
 
@@ -1252,7 +1311,7 @@ int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board){
+int board_run_b(project_ctx_t *pctx, event_context_t *ec, board_object *board){
 
 //    bool_t resize = 0;
 
@@ -1263,6 +1322,32 @@ int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board){
         event_mutex_lock(ec);
         while (event_process(ec));
         event_mutex_unlock(ec);
+
+        if (pctx->clock_faster_req){
+
+            pctx->clock_faster_req = false;
+            clock_faster(pctx);
+        }
+
+        if (pctx->clock_slower_req){
+
+            pctx->clock_slower_req = false;
+            clock_slower(pctx);
+        }
+
+        if (pctx->clock_pause_req){
+
+            pctx->clock_pause_req = false;
+            clock_pause(pctx);
+        }
+
+        bitswitch* bs = pctx->switch_to_toggle;
+        if (bs){
+
+            bitswitch_setval(bs, bs->value ?0:1);
+            pctx->switch_to_toggle = NULL;
+        }
+
 #if 0
 //        if (resize){
 //
@@ -1287,18 +1372,18 @@ int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board){
 //            clock_redraw(ctx);
 //        }
 
-        restart_handlers(ctx);
+        restart_handlers(pctx);
 
         bool_t has_key = 0;
         int key;
 
-        if (received_key(ctx)){
-            key = read_key(ctx);
+        if (received_key(pctx)){
+            key = read_key(pctx);
             has_key = 1;
         }
 
-        if (received_key_simu(ctx)){
-            key = read_key_simu(ctx);
+        if (received_key_simu(pctx)){
+            key = read_key_simu(pctx);
             has_key = 1;
         }
 
@@ -1311,42 +1396,42 @@ int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board){
                 break;
             case 27:
                 //stoprun = 1;
-                board_set_refresh(ctx);
+                board_set_refresh(pctx);
                 break;
             case KEY_F(2):
-                if (ctx->num_focuseable_boards > 1){
-                    if (ctx->current_board_on_focus)
-                        ctx->current_board_on_focus--;
+                if (pctx->num_focuseable_boards > 1){
+                    if (pctx->current_board_on_focus)
+                        pctx->current_board_on_focus--;
                     else
-                        ctx->current_board_on_focus = ctx->num_focuseable_boards - 1;
-                    board_set_refresh(ctx);
+                        pctx->current_board_on_focus = pctx->num_focuseable_boards - 1;
+                    board_set_refresh(pctx);
                 }
                 break;
             case KEY_F(3):
-                if (ctx->num_focuseable_boards > 1){
+                if (pctx->num_focuseable_boards > 1){
 
-                    ctx->current_board_on_focus = (ctx->current_board_on_focus+1) % ctx->num_focuseable_boards;
-                    board_set_refresh(ctx);
+                    pctx->current_board_on_focus = (pctx->current_board_on_focus+1) % pctx->num_focuseable_boards;
+                    board_set_refresh(pctx);
                 }
                 break;
             case KEY_F(12):
-                clock_faster(ctx);
-                board_set_refresh(ctx);
+                clock_faster(pctx);
+                board_set_refresh(pctx);
                 break;
             case KEY_F(11):
-                clock_slower(ctx);
-                board_set_refresh(ctx);
+                clock_slower(pctx);
+                board_set_refresh(pctx);
                 break;
             case KEY_F(10):
-                clock_pause(ctx);
-                board_set_refresh(ctx);
+                clock_pause(pctx);
+                board_set_refresh(pctx);
                 break;
             }
 
             board_object *pboardfocused = NULL;
 
-            if (ctx->num_focuseable_boards)
-                pboardfocused = ctx->board_on_focus[ctx->current_board_on_focus];
+            if (pctx->num_focuseable_boards)
+                pboardfocused = pctx->board_on_focus[pctx->current_board_on_focus];
 
             board_object *p;
 
@@ -1363,7 +1448,7 @@ int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board){
 
                         bitswitch *bs = p->objptr;
                         bitswitch_setval(bs, 1 ^ bs->value);
-                        board_set_refresh(ctx);
+                        board_set_refresh(pctx);
                     }
                 }
                 p = p->objptr_next;
@@ -1375,7 +1460,7 @@ int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int board_run_c(board_ctx_t *ctx, event_context_t *ec, board_object *board){
+int board_run_c(project_ctx_t *ctx, event_context_t *ec, board_object *board){
 
     refresh_thread_stop(ctx);
 
@@ -1389,44 +1474,43 @@ int board_run_c(board_ctx_t *ctx, event_context_t *ec, board_object *board){
     return 0;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 static void
 gtk_clock_pause (GtkWidget *widget,
-                 gpointer   bctx) {
+                 gpointer   pctx) {
 
-    clock_pause(bctx);
+    ((project_ctx_t*)pctx)->clock_pause_req = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void
 gtk_clock_slower (GtkWidget *widget,
-                 gpointer   bctx) {
+                 gpointer   pctx) {
 
-    clock_slower(bctx);
+    ((project_ctx_t*)pctx)->clock_slower_req = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void
 gtk_clock_faster (GtkWidget *widget,
-                 gpointer   bctx) {
+                 gpointer   pctx) {
 
-    clock_faster(bctx);
+    ((project_ctx_t*)pctx)->clock_faster_req = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void board_add_clock_buttons(GtkGrid *maingrid, board_ctx_t *ctx){
+void board_add_clock_buttons(GtkGrid *maingrid, project_ctx_t *pctx){
 
     GtkWidget *buttonfaster = gtk_button_new_with_label (">>");
     GtkWidget *buttonslower = gtk_button_new_with_label ("<<");
-    GtkWidget *buttonpause  = gtk_button_new_with_label ("[]>");
+    GtkWidget *buttonpause  = gtk_button_new_with_label ("||>");
 
     gtk_grid_attach ((GtkGrid*)maingrid, buttonpause, 1, 3, 1, 1);
     gtk_grid_attach ((GtkGrid*)maingrid, buttonslower, 2, 3, 1, 1);
     gtk_grid_attach ((GtkGrid*)maingrid, buttonfaster, 3, 3, 1, 1);
 
-    g_signal_connect (buttonpause, "clicked", G_CALLBACK (gtk_clock_pause), ctx);
-    g_signal_connect (buttonslower, "clicked", G_CALLBACK (gtk_clock_slower), ctx);
-    g_signal_connect (buttonfaster, "clicked", G_CALLBACK (gtk_clock_faster), ctx);
+    g_signal_connect (buttonpause, "clicked", G_CALLBACK (gtk_clock_pause), pctx);
+    g_signal_connect (buttonslower, "clicked", G_CALLBACK (gtk_clock_slower), pctx);
+    g_signal_connect (buttonfaster, "clicked", G_CALLBACK (gtk_clock_faster), pctx);
 
 }

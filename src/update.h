@@ -58,7 +58,7 @@ typedef struct {
     FILE *logfile;
     bool_t logging;
     pthread_mutex_t event_mutex;
-    void *bctx;
+    void *pctx;
 } event_context_t;
 
 event_context_t *event_init(void);
