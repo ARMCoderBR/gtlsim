@@ -61,7 +61,7 @@ typedef struct {
     /// For GTK
     GtkFrame *board_frame;
     GtkGrid *board_grid;
-    GtkWidget *indicator;
+    GtkWidget *gtk_widget;
     int indicator_value;
     void *parent_pctx;
 } board_object;

@@ -33,6 +33,7 @@
 
 void gtk_manual_switch_set_img(void *ptarget, /*int swtype,*/ int value);
 void gtk_led_set_img(GtkImage *gtkimg, led_color_t color, int value);
+void gtk_7seg_set_img(GtkImage *gtkimg, led_color_t color, int segmap);
 
 #define LINHAS_JANELA2 3
 #define LINHAS_JANELA2B (LINHAS_JANELA2+2)
@@ -487,7 +488,7 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 
                 if (bs->value != b->indicator_value){
 
-                    gtk_manual_switch_set_img(b->indicator, /*int swtype,*/ bs->value);
+                    gtk_manual_switch_set_img(b->gtk_widget, /*int swtype,*/ bs->value);
                     b->indicator_value = bs->value;
                 }
 //                if (bs->value){
@@ -509,7 +510,7 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 
                 if (out->value != b->indicator_value){
 
-                    gtk_led_set_img(b->indicator, b->color, out->value);
+                    gtk_led_set_img(b->gtk_widget, b->color, out->value);
                     b->indicator_value = out->value;
                 }
 
@@ -526,7 +527,14 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 
         case DIS7SEG:
             {
-//                dis7seg *dis = b->objptr;
+                dis7seg *dis = b->objptr;
+
+                if (dis->segmap != b->indicator_value){
+
+                    gtk_7seg_set_img(b->gtk_widget, b->color, dis->segmap);
+                    b->indicator_value = dis->segmap;
+                }
+
 //                display_7seg(bctx->janela1, dis->segmap, dis->common_val|(dis->count_persist?1:0), new_w + b->pos_w, new_h + b->pos_h);
             }
             break;
@@ -1001,7 +1009,7 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
     gtk_grid_attach (b->board_grid, (GtkWidget*)ebox, pos_w, pos_h, 1, 1);
     gtk_grid_attach (b->board_grid, (GtkWidget*)newlbl, pos_w, 1+pos_h, 1, 1);
 
-    obja->indicator = newimg;
+    obja->gtk_widget = newimg;
     obja->indicator_value = bs->value;
 
     //gtk_widget_set_events (ebox, GDK_BUTTON_PRESS_MASK);
@@ -1015,6 +1023,84 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
 
     return board_add_object(b, obja);
 }
+
+
+
+static GdkPixbuf *disp7_0, *disp7_1, *disp7_2, *disp7_3, *disp7_4, *disp7_5, *disp7_6, *disp7_7, *disp7_8, *disp7_9;
+static GdkPixbuf *disp7_blank, *disp7_dash;
+static bool disp7_pixbuf_initted = false;
+
+void gtk_7seg_set_img(GtkImage *gtkimg, led_color_t color, int segmap){
+
+    if (!disp7_pixbuf_initted){
+
+        disp7_0 = gdk_pixbuf_new_from_file("../disp7_0.png",NULL);
+        disp7_1 = gdk_pixbuf_new_from_file("../disp7_1.png",NULL);
+        disp7_2 = gdk_pixbuf_new_from_file("../disp7_2.png",NULL);
+        disp7_3 = gdk_pixbuf_new_from_file("../disp7_3.png",NULL);
+        disp7_4 = gdk_pixbuf_new_from_file("../disp7_4.png",NULL);
+        disp7_5 = gdk_pixbuf_new_from_file("../disp7_5.png",NULL);
+        disp7_6 = gdk_pixbuf_new_from_file("../disp7_6.png",NULL);
+        disp7_7 = gdk_pixbuf_new_from_file("../disp7_7.png",NULL);
+        disp7_8 = gdk_pixbuf_new_from_file("../disp7_8.png",NULL);
+        disp7_9 = gdk_pixbuf_new_from_file("../disp7_9.png",NULL);
+        disp7_blank = gdk_pixbuf_new_from_file("../disp7_blank.png",NULL);
+        disp7_dash = gdk_pixbuf_new_from_file("../disp7_dash.png",NULL);
+        disp7_pixbuf_initted = true;
+    }
+
+    switch(segmap){
+
+    case MSK_A|MSK_B|MSK_C|MSK_D|MSK_E|MSK_F:           //'0'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_0);
+        break;
+
+    case MSK_B|MSK_C:                                   //'1'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_1);
+        break;
+
+    case MSK_A|MSK_B|MSK_D|MSK_E|MSK_G:                 //'2'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_2);
+        break;
+
+    case MSK_A|MSK_B|MSK_C|MSK_D|MSK_G:                 //'3'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_3);
+        break;
+
+    case MSK_B|MSK_C|MSK_F|MSK_G:                       //'4'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_4);
+        break;
+
+    case MSK_A|MSK_C|MSK_D|MSK_F|MSK_G:                 //'5'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_5);
+        break;
+
+    case MSK_A|MSK_C|MSK_D|MSK_E|MSK_F|MSK_G:           //'6'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_6);
+        break;
+
+    case MSK_A|MSK_B|MSK_C:                             //'7'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_7);
+        break;
+
+    case MSK_A|MSK_B|MSK_C|MSK_D|MSK_E|MSK_F|MSK_G:     //'8'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_8);
+        break;
+
+    case MSK_A|MSK_B|MSK_C|MSK_D|MSK_F|MSK_G:           //'9'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_9);
+        break;
+
+    case MSK_G:                                         //'-'
+        gtk_image_set_from_pixbuf (gtkimg, disp7_dash);
+        break;
+
+    default:                                            //Blank
+        gtk_image_set_from_pixbuf (gtkimg, disp7_blank);
+        break;
+    }
+}
+
 
 
 static GdkPixbuf *led_green_on, *led_green_off;
@@ -1146,7 +1232,7 @@ int board_add_led(board_object *b, indicator *out, int pos_w, int pos_h, char *n
     gtk_grid_attach (b->board_grid, (GtkWidget*)newimg, pos_w, pos_h, 1, 1);
     gtk_grid_attach (b->board_grid, (GtkWidget*)newlbl, pos_w, 1+pos_h, 1, 1);
 
-    obja->indicator = newimg;
+    obja->gtk_widget = (GtkWidget*)newimg;
     obja->indicator_value = out->value;
 
     return board_add_object(b, obja);
@@ -1174,6 +1260,15 @@ int board_add_display_7seg(board_object *b, dis7seg *out, int pos_w, int pos_h, 
         obja->name[0] = 0;
     obja->objptr_root = NULL;
     obja->objptr_next = NULL;
+
+    GtkImage *newimg = (GtkImage *)gtk_image_new();
+    gtk_7seg_set_img(newimg, color, out->segmap);
+
+    gtk_grid_attach (b->board_grid, (GtkWidget*)newimg, pos_w, pos_h, 2, 1);
+
+    obja->gtk_widget = (GtkWidget*)newimg;
+    obja->indicator_value = out->segmap;
+
 
     return board_add_object(b, obja);
 }

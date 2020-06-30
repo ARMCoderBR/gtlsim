@@ -340,10 +340,10 @@ board_object *reg_out_board_create(reg_out *reg, int key, char *name){
 
     board_add_manual_switch(board, reg->sw_signed,1,1,'s', "Un/Sg");
 
-    board_add_display_7seg(board, reg->display[0],14,3,"DS0", LED_RED);
-    board_add_display_7seg(board, reg->display[1],19,3,"DS1", LED_RED);
-    board_add_display_7seg(board, reg->display[2],24,3,"DS2", LED_RED);
-    board_add_display_7seg(board, reg->display[3],29,3,"DS3", LED_RED);
+    board_add_display_7seg(board, reg->display[0],2,3,"DS0", LED_RED);
+    board_add_display_7seg(board, reg->display[1],4,3,"DS1", LED_RED);
+    board_add_display_7seg(board, reg->display[2],6,3,"DS2", LED_RED);
+    board_add_display_7seg(board, reg->display[3],8,3,"DS3", LED_RED);
 
     return board;
 }
