@@ -15,11 +15,15 @@
 #include "computer.h"
 
 #include <gtk/gtk.h>
+#include <pthread.h>
 
 int state = 1;
 
 GtkImage * image1;
 GtkWidget *main_grid;
+
+pthread_t simthread;
+int running = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 static void
@@ -27,7 +31,7 @@ print_hello (GtkWidget *widget,
              gpointer   comp) {
 
     g_print ("Hello World\n");
-    computer_sim_run((computer_t*)comp);
+    //computer_sim_run((computer_t*)comp);
 
     state ^= 1;
 
@@ -36,6 +40,23 @@ print_hello (GtkWidget *widget,
     else
         gtk_image_set_from_file (image1,"../led-red-off.png");
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+void *run_sim(void *args){
+
+    computer_t *comp = args;
+    running = 1;
+
+    for (;running;){
+
+        computer_sim_run((computer_t*)comp);
+        usleep(100);
+    }
+
+    return NULL;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 static void
@@ -64,6 +85,8 @@ activate (GtkApplication* app,
 
     computer_sim_begin(comp, (GtkGrid*)main_grid);
 
+    pthread_create(&simthread, NULL, run_sim, comp);
+
     gtk_widget_show_all (window);
 }
 
@@ -80,6 +103,9 @@ int main (int argc, char **argv) {
     g_signal_connect (app, "activate", G_CALLBACK (activate), comp);
 
     status = g_application_run (G_APPLICATION (app), argc, argv);
+
+    running = 0;
+    pthread_join(simthread, NULL);
 
     computer_sim_end(comp);
 

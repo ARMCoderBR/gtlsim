@@ -646,7 +646,7 @@ void *refresh_thread(void *args){
 void refresh_thread_stop(board_ctx_t *bctx){
 
     bctx->refresh_run = 0;
-    pthread_join(bctx->refthread,NULL);
+    //pthread_join(bctx->refthread,NULL);
 
     bctx->reader_ok = 0;
 
@@ -1245,9 +1245,9 @@ int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board){
 
 //    keypad(ctx->janela1,TRUE);
 
-    pthread_create(&ctx->refthread, NULL, refresh_thread, ctx);
+    //pthread_create(&ctx->refthread, NULL, refresh_thread, ctx);
 
-    board_set_refresh(ctx);
+    //board_set_refresh(ctx);
     return 0;
 }
 
@@ -1263,7 +1263,7 @@ int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board){
         event_mutex_lock(ec);
         while (event_process(ec));
         event_mutex_unlock(ec);
-
+#if 0
 //        if (resize){
 //
 //            pthread_mutex_lock(&ctx->ncursesmutex);
@@ -1369,8 +1369,8 @@ int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board){
                 p = p->objptr_next;
             }
         }
+#endif
     }
-
     return 0;
 }
 
