@@ -49,6 +49,8 @@ static void ls189_update (ls189 *a, timevalue_t timestamp){
     event e;
 
 ls189_end:
+
+    //printf("cs:%d we:%d current_addr:%d %d %d %d %d\n",a->in_cs,a->in_we,a->current_addr, a->latd[a->current_addr][3],a->latd[a->current_addr][2],a->latd[a->current_addr][1],a->latd[a->current_addr][0]);
     e.timestamp = timestamp+1;
 
     for (i = 0; i < NUM_BITS_LS189; i++){

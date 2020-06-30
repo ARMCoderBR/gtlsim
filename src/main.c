@@ -81,7 +81,7 @@ int main (int argc, char **argv) {
 
     g_signal_connect (app, "activate", G_CALLBACK (activate), comp);
 
-    /*gint*/ g_timeout_add (50,//guint32     interval,
+    /*gint*/ g_timeout_add (32,//guint32     interval,
             timeout_callback,//GtkFunction function,
                         comp//gpointer    data
                         );
