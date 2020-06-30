@@ -109,6 +109,7 @@ int board_add_display_7seg(board_object *b, dis7seg *out, int pos_w, int pos_h, 
 int board_add_xdigit(board_object *b, indicator *out, int pos_w, int pos_h, char *name, led_color_t color);
 
 int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h);
+int board_add_boardWH(board_object *b, board_object *board, int pos_w, int pos_h, int width, int heigth);
 
 int board_run(board_ctx_t *ctx, event_context_t *ec, board_object *board);
 int board_run_b(board_ctx_t *ctx, event_context_t *ec, board_object *board);
@@ -127,5 +128,8 @@ void board_set_refresh(board_ctx_t *ctx);
 board_ctx_t *board_init(void);
 
 void board_write_key(board_ctx_t *bctx, int key);
+
+void board_add_clock_buttons(GtkGrid *maingrid, board_ctx_t *ctx);
+
 
 #endif /* BOARD_H_ */

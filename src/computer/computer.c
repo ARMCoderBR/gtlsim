@@ -25,6 +25,7 @@ void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
     comp->mainboard = board_create(0,0,0,name);
     //gtk_grid_attach (maingrid, (GtkWidget*)comp->mainboard->board_grid, 3, 1, 1, 1);
     gtk_grid_attach (maingrid, (GtkWidget*)comp->mainboard->board_frame, 1, 2, 3, 1);
+    board_add_clock_buttons(maingrid, comp->ctx);
 
     comp->ec = event_init();
     comp->ec->bctx = comp->ctx;
@@ -50,14 +51,14 @@ void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
     clkgen_connect_out(comp->mainclk, comp->regIN, (void*)&reg_8bit_in_clock);
 
     board_add_board(comp->mainboard,comp->regA_board,1,1);
-    board_add_board(comp->mainboard,comp->regB_board,1,9);
-    board_add_board(comp->mainboard,comp->regIN_board,1,13);
+    board_add_board(comp->mainboard,comp->regB_board,1,2);
+    board_add_board(comp->mainboard,comp->regIN_board,1,4);
 
     //////// ALU ///////////////////////////////////////////////////////////////
 
     comp->alu = alu_8bit_create(comp->ec, "ALU");
     comp->alu_board = alu_8bit_board_create(comp->alu, KEY_F(4), "ALU"); // Requer NCURSES
-    board_add_board(comp->mainboard,comp->alu_board,1,5);
+    board_add_board(comp->mainboard,comp->alu_board,1,3);
 
     ls173_connect_1q(comp->regA->ls173_lo, comp->alu, alu_8bit_in_dataAN[0]);
     ls173_connect_2q(comp->regA->ls173_lo, comp->alu, alu_8bit_in_dataAN[1]);
@@ -81,21 +82,21 @@ void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
 
     comp->ram = ram_8bit_create(comp->ec, "RAM");
     comp->ram_board = ram_8bit_board_create(comp->ram, KEY_F(5), "RAM"); // Requer NCURSES
-    board_add_board(comp->mainboard,comp->ram_board,42,1);
+    board_add_boardWH(comp->mainboard,comp->ram_board,2,1,1,3);
     clkgen_connect_out(comp->mainclk, comp->ram, (void*)&ram_8bit_in_clk);
 
     //////// PROGRAM COUNTER ///////////////////////////////////////////////////
 
     comp->pctr = progctr_create(comp->ec, "PC");
     comp->pctr_board = progctr_board_create(comp->pctr, KEY_F(6), "PC");
-    board_add_board(comp->mainboard,comp->pctr_board,67,21);
+    board_add_board(comp->mainboard,comp->pctr_board,2,7);
     clkgen_connect_out(comp->mainclk, comp->pctr, (void*)&progctr_in_clock);
 
     //////// REG OUT ///////////////////////////////////////////////////////////
 
     comp->regout = reg_out_create(comp->ec, "RO");
     comp->regout_board = reg_out_board_create(comp->regout, KEY_F(6), "RO");
-    board_add_board(comp->mainboard,comp->regout_board,60,14);
+    board_add_boardWH(comp->mainboard,comp->regout_board,2,4,1,2);
     clkgen_connect_out(comp->mainclk, comp->regout, (void*)&reg_out_in_clock);
 
     //////// BUS ///////////////////////////////////////////////////////////////
@@ -162,7 +163,7 @@ void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
         board_add_led(comp->bus_board,comp->ledbus[i],1+4*j, 1, dname, LED_RED);
     }
 
-    board_add_board(comp->mainboard,comp->bus_board,1,17);
+    board_add_board(comp->mainboard,comp->bus_board,1,5);
 
     for (i = 0; i < 4; i++){
 
@@ -184,10 +185,10 @@ void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
 
     comp->ctru = ctrunit_create(comp->ec, "CONTROL UNIT");
     comp->ctru_board = ctrunit_board_create(comp->ctru, '*', "CONTROL UNIT");
-    board_add_board(comp->mainboard,comp->ctru_board,1,21);
+    board_add_boardWH(comp->mainboard,comp->ctru_board,1,6,1,2);
 
     comp->ctru_flags_board = ctrunit_board_flags_create(comp->ctru, '*', "FLAGS");
-    board_add_board(comp->mainboard,comp->ctru_flags_board,44,15);
+    board_add_board(comp->mainboard,comp->ctru_flags_board,2,6);
 
     clkgen_connect_out(comp->mainclk, comp->ctru, (void*)&ctrunit_in_clk);
     clkgen_connect_outn(comp->mainclk, comp->ctru, (void*)&ctrunit_in_clkn);

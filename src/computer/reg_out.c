@@ -329,16 +329,16 @@ board_object *reg_out_board_create(reg_out *reg, int key, char *name){
 
         j = 7-i;
         sprintf(s,"D%d",i);
-        board_add_led(board, reg->led[i],1+4*j,1,s, LED_RED);
+        board_add_led(board, reg->led[i],2+j,1,s, LED_RED);
     }
 
-    board_add_led(board, reg->ledclk,35,1,"CLK", LED_BLUE);
+    board_add_led(board, reg->ledclk,20,1,"CLK", LED_BLUE);
 
 //    board_add_led(board, reg->ledclki,1,4,"CKi", LED_YELLOW);
 //    board_add_led(board, reg->led76_1,5,4,"C1", LED_GREEN);
 //    board_add_led(board, reg->led76_0,9,4,"C0", LED_GREEN);
 
-    board_add_manual_switch(board, reg->sw_signed,3,4,'s', "Un/Sg");
+    board_add_manual_switch(board, reg->sw_signed,1,1,'s', "Un/Sg");
 
     board_add_display_7seg(board, reg->display[0],14,3,"DS0", LED_RED);
     board_add_display_7seg(board, reg->display[1],19,3,"DS1", LED_RED);

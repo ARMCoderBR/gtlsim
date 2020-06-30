@@ -1164,6 +1164,20 @@ int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+int board_add_boardWH(board_object *b, board_object *board, int pos_w, int pos_h, int width, int heigth){
+
+    if (!b) return -2;
+    if (!board) return -2;
+
+    board->pos_w = pos_w;
+    board->pos_h = pos_h;
+
+    gtk_grid_attach (b->board_grid, board->board_frame, pos_w, pos_h, width, heigth);
+
+    return board_add_object(b, board);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1373,4 +1387,46 @@ int board_run_c(board_ctx_t *ctx, event_context_t *ec, board_object *board){
 //    endwin();
 
     return 0;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+static void
+gtk_clock_pause (GtkWidget *widget,
+                 gpointer   bctx) {
+
+    clock_pause(bctx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+static void
+gtk_clock_slower (GtkWidget *widget,
+                 gpointer   bctx) {
+
+    clock_slower(bctx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+static void
+gtk_clock_faster (GtkWidget *widget,
+                 gpointer   bctx) {
+
+    clock_faster(bctx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void board_add_clock_buttons(GtkGrid *maingrid, board_ctx_t *ctx){
+
+    GtkWidget *buttonfaster = gtk_button_new_with_label (">>");
+    GtkWidget *buttonslower = gtk_button_new_with_label ("<<");
+    GtkWidget *buttonpause  = gtk_button_new_with_label ("[]>");
+
+    gtk_grid_attach ((GtkGrid*)maingrid, buttonpause, 1, 3, 1, 1);
+    gtk_grid_attach ((GtkGrid*)maingrid, buttonslower, 2, 3, 1, 1);
+    gtk_grid_attach ((GtkGrid*)maingrid, buttonfaster, 3, 3, 1, 1);
+
+    g_signal_connect (buttonpause, "clicked", G_CALLBACK (gtk_clock_pause), ctx);
+    g_signal_connect (buttonslower, "clicked", G_CALLBACK (gtk_clock_slower), ctx);
+    g_signal_connect (buttonfaster, "clicked", G_CALLBACK (gtk_clock_faster), ctx);
+
 }
