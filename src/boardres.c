@@ -1,9 +1,13 @@
-/*
- * boardres.c
- *
- *  Created on: 1 de jul de 2020
- *      Author: milton
- */
+////////////////////////////////////////////////////////////////////////////////
+// GTLSIM
+// A TINY LOGIC CIRCUIT SIMULATOR
+// (C) 2020 BY ARMCODER - milton@armcoder.com.br
+//
+// https://github.com/ARMCoderBR/gtlsim
+//
+// THIS PROGRAM IS FREE SOFTWARE
+// SEE LICENSE AT https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+////////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
 

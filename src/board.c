@@ -1,7 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-// TLSIM
+// GTLSIM
 // A TINY LOGIC CIRCUIT SIMULATOR
-// (C) 2019, 2020 BY ARMCODER - milton@armcoder.com.br
+// (C) 2020 BY ARMCODER - milton@armcoder.com.br
+//
+// https://github.com/ARMCoderBR/gtlsim
 //
 // THIS PROGRAM IS FREE SOFTWARE
 // SEE LICENSE AT https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt

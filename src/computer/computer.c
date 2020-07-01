@@ -1,7 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-// TLSIM
+// GTLSIM
 // A TINY LOGIC CIRCUIT SIMULATOR
-// (C) 2019, 2020 BY ARMCODER - milton@armcoder.com.br
+// (C) 2020 BY ARMCODER - milton@armcoder.com.br
+//
+// https://github.com/ARMCoderBR/gtlsim
 //
 // THIS PROGRAM IS FREE SOFTWARE
 // SEE LICENSE AT https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
@@ -25,8 +27,7 @@ void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
     comp->mainboard = board_create(0,0,0,name);
     comp->mainboard->parent_pctx = comp->pctx;
 
-    //gtk_grid_attach (maingrid, (GtkWidget*)comp->mainboard->board_grid, 3, 1, 1, 1);
-    gtk_grid_attach (maingrid, (GtkWidget*)comp->mainboard->board_frame, 1, 2, 3, 1);
+    gtk_grid_attach (maingrid, (GtkWidget*)comp->mainboard->board_frame, 1, 2, 4, 1);
     board_add_clock_buttons(maingrid, comp->pctx);
 
     comp->ec = event_init();

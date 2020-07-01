@@ -1,7 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-// TLSIM
+// GTLSIM
 // A TINY LOGIC CIRCUIT SIMULATOR
-// (C) 2019, 2020 BY ARMCODER - milton@armcoder.com.br
+// (C) 2020 BY ARMCODER - milton@armcoder.com.br
+//
+// https://github.com/ARMCoderBR/gtlsim
 //
 // THIS PROGRAM IS FREE SOFTWARE
 // SEE LICENSE AT https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
@@ -60,7 +62,7 @@ activate (GtkApplication* app,
 
     g_signal_connect_swapped (button2, "clicked", G_CALLBACK (gtk_widget_destroy), window);
 
-    gtk_grid_attach ((GtkGrid*)main_grid, button2, 2, 1, 1, 1);
+    gtk_grid_attach ((GtkGrid*)main_grid, button2, 4, 3, 1, 1);
 
     computer_sim_begin(comp, (GtkGrid*)main_grid);
 

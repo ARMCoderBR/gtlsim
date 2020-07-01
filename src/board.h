@@ -1,9 +1,13 @@
-/*
- * interactive.h
- *
- *  Created on: 28 de mar de 2020
- *      Author: milton
- */
+////////////////////////////////////////////////////////////////////////////////
+// GTLSIM
+// A TINY LOGIC CIRCUIT SIMULATOR
+// (C) 2020 BY ARMCODER - milton@armcoder.com.br
+//
+// https://github.com/ARMCoderBR/gtlsim
+//
+// THIS PROGRAM IS FREE SOFTWARE
+// SEE LICENSE AT https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef BOARD_H_
 #define BOARD_H_
