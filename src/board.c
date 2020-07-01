@@ -48,14 +48,14 @@ project_ctx_t *project_init(void){
 //    bctx->TERM_LINES = 0;
 //    bctx->TERM_COLS = 0;
 
-    pctx->reader_ok = 0;
+    //pctx->reader_ok = 0;
 
     pctx->boardclk = NULL;
-    pctx->refresh_run = 0;
+    //pctx->refresh_run = 0;
 
-    pctx->focustable_done = 0;
-    pctx->num_focuseable_boards = 0;
-    pctx->current_board_on_focus = 0;
+    //pctx->focustable_done = 0;
+    //pctx->num_focuseable_boards = 0;
+    //pctx->current_board_on_focus = 0;
 
     pctx->clock_pausing = 0;
     pctx->iclk = 0;
@@ -66,56 +66,56 @@ project_ctx_t *project_init(void){
     return pctx;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void restart_handlers(project_ctx_t *pctx)
-{
-    struct timeval tv;
+//////////////////////////////////////////////////////////////////////////////////
+//void restart_handlers(project_ctx_t *pctx)
+//{
+//    struct timeval tv;
+//
+//    FD_ZERO (&pctx->readfds);
+//    FD_SET(0,&pctx->readfds);
+//    FD_SET(pctx->pipekeys[0],&pctx->readfds);
+//
+//    tv.tv_sec = 0;
+//    tv.tv_usec = 100;    // 100 us
+//
+//    select (1+pctx->pipekeys[0],&pctx->readfds,NULL,NULL,&tv);
+//}
 
-    FD_ZERO (&pctx->readfds);
-    FD_SET(0,&pctx->readfds);
-    FD_SET(pctx->pipekeys[0],&pctx->readfds);
+//////////////////////////////////////////////////////////////////////////////////
+//int received_key(project_ctx_t *pctx)
+//{
+//    return (FD_ISSET(0,&pctx->readfds));
+//}
 
-    tv.tv_sec = 0;
-    tv.tv_usec = 100;    // 100 us
+//////////////////////////////////////////////////////////////////////////////////
+//int received_key_simu(project_ctx_t *pctx)
+//{
+//    return (FD_ISSET(pctx->pipekeys[0],&pctx->readfds));
+//}
 
-    select (1+pctx->pipekeys[0],&pctx->readfds,NULL,NULL,&tv);
-}
+//////////////////////////////////////////////////////////////////////////////////
+//int read_key(project_ctx_t *pctx)
+//{
+////    pthread_mutex_lock(&pctx->ncursesmutex);
+////    int key = wgetch(pctx->janela1);
+////    pthread_mutex_unlock(&pctx->ncursesmutex);
+////    return key;
+//    return 0;
+//}
 
-////////////////////////////////////////////////////////////////////////////////
-int received_key(project_ctx_t *pctx)
-{
-    return (FD_ISSET(0,&pctx->readfds));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-int received_key_simu(project_ctx_t *pctx)
-{
-    return (FD_ISSET(pctx->pipekeys[0],&pctx->readfds));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-int read_key(project_ctx_t *pctx)
-{
-//    pthread_mutex_lock(&pctx->ncursesmutex);
-//    int key = wgetch(pctx->janela1);
-//    pthread_mutex_unlock(&pctx->ncursesmutex);
+//////////////////////////////////////////////////////////////////////////////////
+//int read_key_simu(project_ctx_t *pctx)
+//{
+//    int key;
+//    read(pctx->pipekeys[0], &key, sizeof(int));
 //    return key;
-    return 0;
-}
+//}
 
-////////////////////////////////////////////////////////////////////////////////
-int read_key_simu(project_ctx_t *pctx)
-{
-    int key;
-    read(pctx->pipekeys[0], &key, sizeof(int));
-    return key;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void board_write_key(project_ctx_t *pctx, int key)
-{
-    write(pctx->pipekeys[1], &key, sizeof(int));
-}
+//////////////////////////////////////////////////////////////////////////////////
+//void board_write_key(project_ctx_t *pctx, int key)
+//{
+//    write(pctx->pipekeys[1], &key, sizeof(int));
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 void sigterm_handler(int sig){
@@ -199,7 +199,7 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 
         case BOARD:
 
-            board_refresh_a(pctx, b, b->pos_h, b->pos_w);
+            board_refresh_a(pctx, b, 0/*b->pos_h*/, 0/*b->pos_w*/);
             break;
         }
 
@@ -344,16 +344,16 @@ board_object *board_create(int width, int height, int key, char *name){
 
     if (!b) return b;
 
-    b->pos_w = b->pos_h = 0;
+    //b->pos_w = b->pos_h = 0;
     b->type = BOARD;
     b->objptr = NULL;
-    b->key = key;
+    //b->key = key;
     if (name)
         strncpy(b->name, name, NAMESIZE);
     else
         b->name[0] = 0;
-    b->w_width = width;
-    b->w_height = height;
+    //b->w_width = width;
+    //b->w_height = height;
     b->objptr_root = NULL;
     b->objptr_next = NULL;
     //b->board_on_focus = b;  // Focada nela própria no início.
@@ -512,11 +512,11 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
     board_object *obja = malloc(sizeof(board_object));
     if (!obja) return -1;
 
-    obja->pos_w  = pos_w;
-    obja->pos_h  = pos_h;
+    //obja->pos_w  = pos_w;
+    //obja->pos_h  = pos_h;
     obja->type   = MANUAL_SWITCH;
     obja->objptr = bs;
-    obja->key    = key;
+    //obja->key    = key;
     if (name)
         strncpy(obja->name, name, NAMESIZE);
     else
@@ -732,12 +732,12 @@ int board_add_led(board_object *b, indicator *out, int pos_w, int pos_h, char *n
     if (!obja) return -1;
 
     //out->callback = (indicator_refresh_t)board_set_refresh;
-    obja->pos_w  = pos_w;
-    obja->pos_h  = pos_h;
+    //obja->pos_w  = pos_w;
+    //obja->pos_h  = pos_h;
     obja->type   = LED;
     obja->color = color;
     obja->objptr = out;
-    obja->key    = 0;
+    //obja->key    = 0;
     if (name)
         strncpy(obja->name, name, NAMESIZE);
     else
@@ -768,12 +768,12 @@ int board_add_display_7seg(board_object *b, dis7seg *out, int pos_w, int pos_h, 
     board_object *obja = malloc(sizeof(board_object));
     if (!obja) return -1;
 
-    obja->pos_w  = pos_w;
-    obja->pos_h  = pos_h;
+    //obja->pos_w  = pos_w;
+    //obja->pos_h  = pos_h;
     obja->type   = DIS7SEG;
     obja->color = color;
     obja->objptr = out;
-    obja->key    = 0;
+    //obja->key    = 0;
     if (name)
         strncpy(obja->name, name, NAMESIZE);
     else
@@ -806,11 +806,11 @@ int board_add_xdigit(board_object *b, indicator *out, int pos_w, int pos_h, char
     board_object *obja = malloc(sizeof(board_object));
     if (!obja) return -1;
 
-    obja->pos_w  = pos_w;
-    obja->pos_h  = pos_h;
+    //obja->pos_w  = pos_w;
+    //obja->pos_h  = pos_h;
     obja->type   = XDIGIT;
     obja->objptr = out;
-    obja->key    = 0;
+    //obja->key    = 0;
     if (name)
         strncpy(obja->name, name, NAMESIZE);
     else
@@ -827,8 +827,8 @@ int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h){
     if (!b) return -2;
     if (!board) return -2;
 
-    board->pos_w = pos_w;
-    board->pos_h = pos_h;
+    //board->pos_w = pos_w;
+    //board->pos_h = pos_h;
 
     gtk_grid_attach (b->board_grid, (GtkWidget*)board->board_frame, pos_w, pos_h, 1, 1);
 
@@ -841,8 +841,8 @@ int board_add_boardWH(board_object *b, board_object *board, int pos_w, int pos_h
     if (!b) return -2;
     if (!board) return -2;
 
-    board->pos_w = pos_w;
-    board->pos_h = pos_h;
+    //board->pos_w = pos_w;
+    //board->pos_h = pos_h;
 
     gtk_grid_attach (b->board_grid, (GtkWidget*)board->board_frame, pos_w, pos_h, width, heigth);
 
@@ -865,7 +865,7 @@ int board_run(project_ctx_t *ctx, event_context_t *ec, board_object *board){
 
     ctx->main_board = board;
 
-    pipe(ctx->pipekeys);
+    //pipe(ctx->pipekeys);
 
     if (!board) return -2;
 

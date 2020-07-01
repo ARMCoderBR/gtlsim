@@ -229,6 +229,8 @@ void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
     ctrunit_connect_out_co(comp->ctru, comp->pctr, (void*)&progctr_in_oenable);
     ctrunit_connect_out_j(comp->ctru, comp->pctr, (void*)&progctr_in_load);
 
+    comp->exmachina_started = false;
+
     board_run(comp->pctx, comp->ec, comp->mainboard);
 }
     ////////////////
@@ -238,9 +240,13 @@ void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
 ////////////////////////////////////////////////////////////////////////////////
 void computer_sim_run(computer_t *comp){
 
-//    pthread_t sim_thread;
-//    pthread_create(&sim_thread, NULL, exmachina_thread, comp->ctx);
-//    pthread_detach(sim_thread);
+    if (!comp->exmachina_started){
+
+        comp->exmachina_started = true;
+        pthread_t sim_thread;
+        pthread_create(&sim_thread, NULL, exmachina_thread, comp->pctx);
+        pthread_detach(sim_thread);
+    }
 
     board_run_b(comp->pctx, comp->ec, comp->mainboard);
 }

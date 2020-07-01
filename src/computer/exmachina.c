@@ -28,7 +28,7 @@ const int LINES_PROG = sizeof(demoprog)/2;
 ////////////////////////////////////////////////////////////////////////////////
 void write_key(project_ctx_t *pctx, int key){
 
-    board_write_key(pctx, key);
+    //board_write_key(pctx, key);
     usleep(100000);
 }
 

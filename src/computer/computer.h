@@ -49,6 +49,7 @@ typedef struct {
     board_object *regout_board;
     indicator *ledbus[8];
     board_object *bus_board;
+    bool exmachina_started;
 
 } computer_t;
 
