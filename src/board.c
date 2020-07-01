@@ -25,6 +25,7 @@
 #include "update.h"
 #include "dis7seg.h"
 #include "clkgen.h"
+#include "boardres.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -943,8 +944,11 @@ void gtk_manual_switch_set_img(void *ptarget, /*int swtype,*/ int value){
 
     if (!switch_pixbuf_initted){
 
-        switch_on = gdk_pixbuf_new_from_file("../switch-on.png",NULL);
-        switch_off = gdk_pixbuf_new_from_file("../switch-off.png",NULL);
+        boardres_init_streams();
+
+        switch_on = gdk_pixbuf_new_from_stream(switch_on_s, NULL, NULL);
+        switch_off = gdk_pixbuf_new_from_stream(switch_off_s, NULL, NULL);
+
         switch_pixbuf_initted = true;
     }
 
@@ -1034,18 +1038,20 @@ void gtk_7seg_set_img(GtkImage *gtkimg, led_color_t color, int segmap){
 
     if (!disp7_pixbuf_initted){
 
-        disp7_0 = gdk_pixbuf_new_from_file("../disp7_0.png",NULL);
-        disp7_1 = gdk_pixbuf_new_from_file("../disp7_1.png",NULL);
-        disp7_2 = gdk_pixbuf_new_from_file("../disp7_2.png",NULL);
-        disp7_3 = gdk_pixbuf_new_from_file("../disp7_3.png",NULL);
-        disp7_4 = gdk_pixbuf_new_from_file("../disp7_4.png",NULL);
-        disp7_5 = gdk_pixbuf_new_from_file("../disp7_5.png",NULL);
-        disp7_6 = gdk_pixbuf_new_from_file("../disp7_6.png",NULL);
-        disp7_7 = gdk_pixbuf_new_from_file("../disp7_7.png",NULL);
-        disp7_8 = gdk_pixbuf_new_from_file("../disp7_8.png",NULL);
-        disp7_9 = gdk_pixbuf_new_from_file("../disp7_9.png",NULL);
-        disp7_blank = gdk_pixbuf_new_from_file("../disp7_blank.png",NULL);
-        disp7_dash = gdk_pixbuf_new_from_file("../disp7_dash.png",NULL);
+        boardres_init_streams();
+
+        disp7_0 = gdk_pixbuf_new_from_stream(disp7_0_s, NULL, NULL);
+        disp7_1 = gdk_pixbuf_new_from_stream(disp7_1_s, NULL, NULL);
+        disp7_2 = gdk_pixbuf_new_from_stream(disp7_2_s, NULL, NULL);
+        disp7_3 = gdk_pixbuf_new_from_stream(disp7_3_s, NULL, NULL);
+        disp7_4 = gdk_pixbuf_new_from_stream(disp7_4_s, NULL, NULL);
+        disp7_5 = gdk_pixbuf_new_from_stream(disp7_5_s, NULL, NULL);
+        disp7_6 = gdk_pixbuf_new_from_stream(disp7_6_s, NULL, NULL);
+        disp7_7 = gdk_pixbuf_new_from_stream(disp7_7_s, NULL, NULL);
+        disp7_8 = gdk_pixbuf_new_from_stream(disp7_8_s, NULL, NULL);
+        disp7_9 = gdk_pixbuf_new_from_stream(disp7_9_s, NULL, NULL);
+        disp7_blank = gdk_pixbuf_new_from_stream(disp7_blank_s, NULL, NULL);
+        disp7_dash = gdk_pixbuf_new_from_stream(disp7_dash_s, NULL, NULL);
         disp7_pixbuf_initted = true;
     }
 
@@ -1115,16 +1121,18 @@ void gtk_led_set_img(GtkImage *gtkimg, led_color_t color, int value){
 
     if (!led_pixbuf_initted){
 
-        led_green_on  = gdk_pixbuf_new_from_file("../led-green-on.png",NULL);
-        led_green_off = gdk_pixbuf_new_from_file("../led-green-off.png",NULL);
-        led_yellow_on  = gdk_pixbuf_new_from_file("../led-yellow-on.png",NULL);
-        led_yellow_off = gdk_pixbuf_new_from_file("../led-yellow-off.png",NULL);
-        led_blue_on  = gdk_pixbuf_new_from_file("../led-blue-on.png",NULL);
-        led_blue_off = gdk_pixbuf_new_from_file("../led-blue-off.png",NULL);
-        led_white_on  = gdk_pixbuf_new_from_file("../led-white-on.png",NULL);
-        led_white_off = gdk_pixbuf_new_from_file("../led-white-off.png",NULL);
-        led_red_on  = gdk_pixbuf_new_from_file("../led-red-on.png",NULL);
-        led_red_off = gdk_pixbuf_new_from_file("../led-red-off.png",NULL);
+        boardres_init_streams();
+
+        led_green_on = gdk_pixbuf_new_from_stream(led_green_on_s, NULL, NULL);
+        led_green_off = gdk_pixbuf_new_from_stream(led_green_off_s, NULL, NULL);
+        led_yellow_on = gdk_pixbuf_new_from_stream(led_yellow_on_s, NULL, NULL);
+        led_yellow_off = gdk_pixbuf_new_from_stream(led_yellow_off_s, NULL, NULL);
+        led_blue_on = gdk_pixbuf_new_from_stream(led_blue_on_s, NULL, NULL);
+        led_blue_off = gdk_pixbuf_new_from_stream(led_blue_off_s, NULL, NULL);
+        led_white_on = gdk_pixbuf_new_from_stream(led_white_on_s, NULL, NULL);
+        led_white_off = gdk_pixbuf_new_from_stream(led_white_off_s, NULL, NULL);
+        led_red_on = gdk_pixbuf_new_from_stream(led_red_on_s, NULL, NULL);
+        led_red_off = gdk_pixbuf_new_from_stream(led_red_off_s, NULL, NULL);
 
         led_pixbuf_initted = true;
     }
