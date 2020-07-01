@@ -16,6 +16,7 @@
 
 #include "ram_8bit.h"
 #include "bitconst.h"
+#include "exmachina.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 void *difpulse_function(void *args){
@@ -173,6 +174,12 @@ ram_8bit *ram_8bit_create(event_context_t *ec, char *name){
     ram->progdata[6] = bitswitch_create(ec, "RD6");
     ram->progdata[7] = bitswitch_create(ec, "RD7");
     ram->progwrite = bitswitch_create(ec, "PRW");
+
+    for (i = 0; i < 4; i++)
+        bitswitch_setval(ram->progaddr[i],0);
+
+    for (i = 0; i < 8; i++)
+        bitswitch_setval(ram->progdata[i],0);
 
     bitswitch_setval(ram->progwrite, 1);
 
@@ -456,10 +463,8 @@ board_object *ram_8bit_board_create(ram_8bit *ram, int key, char *name){
         sprintf(s,"D%d",i);
         board_add_led(board, ram->leddata[i],5+j,1,s, LED_RED);
 
-        board_add_manual_switch(board, ram->progdata[i], 5+j, 3, '0'+i, s);
+        board_add_manual_switch(board, ram->progdata[i], 5+j, 3, RAMDATA_KEY_0+i, s);
     }
-
-    char ka[]="hjkl";
 
     for (i = 0; i < 4; i++){
 
@@ -467,15 +472,15 @@ board_object *ram_8bit_board_create(ram_8bit *ram, int key, char *name){
 
         sprintf(s,"A%d",i);
         board_add_led(board, ram->ledaddr[i],9+j,5,s, LED_YELLOW);
-        board_add_manual_switch(board, ram->progaddr[i], 9+j, 6, ka[j], s);
+        board_add_manual_switch(board, ram->progaddr[i], 9+j, 6, RAMADDR_KEY_0+i, s);
     }
 
 
-    board_add_manual_switch(board, ram->progwrite, 8, 6, 'w',"Write");
+    board_add_manual_switch(board, ram->progwrite, 8, 6, RAM_WRITE,"Write");
 
     board_add_led(board, ram->ledrun,1,1,"RUN", LED_GREEN);
     board_add_led(board, ram->ledprog,2,1,"PRG", LED_RED);
-    board_add_manual_switch(board, ram->prog_run, 1, 3, 'p',"Pr/Run");
+    board_add_manual_switch(board, ram->prog_run, 1, 3, RAM_PROG_RUN,"Pr/Run");
 
     return board;
 }

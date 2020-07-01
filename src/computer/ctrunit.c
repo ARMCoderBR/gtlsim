@@ -16,6 +16,7 @@
 
 #include "ctrunit.h"
 #include "bitconst.h"
+#include "exmachina.h"
 
 char labels[16][4] = {"FI", " J", "CO", "CE", "OI", "BI", "SU", "SO", "AO", "AI", "II", "IO", "RO", "RI", "MI", "HLT" };
 
@@ -149,6 +150,8 @@ ctrunit *ctrunit_create(event_context_t *ec, char *name){
     ctru->ls04_1 = ls04_create(ec);
     ctru->ls04_2 = ls04_create(ec);
     ctru->reset_sw = bitswitch_create(ec, "Reset");
+
+    bitswitch_setval(ctru->reset_sw,0);
 
     bitswitch_connect_out(ctru->reset_sw, ctru->ls00, (void*)&ls00_in_a1);
     bitswitch_connect_out(ctru->reset_sw, ctru->ls00, (void*)&ls00_in_b1);
@@ -376,7 +379,7 @@ board_object *ctrunit_board_create(ctrunit *reg, int key, char *name){
         board_add_led(board, reg->led[i],1+4*(j-1),1,s, LED_BLUE);
     }
 
-    board_add_manual_switch(board, reg->reset_sw, 1, 4, 'r', "RST");
+    board_add_manual_switch(board, reg->reset_sw, 1, 4, CTRU_RESET, "RST");
 
     board_add_led(board, reg->ct[2],9,4,"C2", LED_RED);
     board_add_led(board, reg->ct[1],13,4,"C1", LED_RED);

@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include "board.h"
+#include "exmachina.h"
 
 const uint8_t demoprog[] = {
 
@@ -28,7 +29,8 @@ const int LINES_PROG = sizeof(demoprog)/2;
 ////////////////////////////////////////////////////////////////////////////////
 void write_key(project_ctx_t *pctx, int key){
 
-    //board_write_key(pctx, key);
+    printf("Key:%d\n",key);
+    pctx->remote_key = key;
     usleep(100000);
 }
 
@@ -49,18 +51,18 @@ void *exmachina_thread(void *args){
         uint8_t newdata = demoprog[2*i+1];
 
         uint8_t deltaaddr = addr ^ newaddr;
-        if (deltaaddr & 0x01){
-            write_key(pctx, 'l');
-        }
 
+        if (deltaaddr & 0x01){
+            write_key(pctx, RAMADDR_KEY_0);
+        }
         if (deltaaddr & 0x02){
-            write_key(pctx, 'k');
+            write_key(pctx, RAMADDR_KEY_1);
         }
         if (deltaaddr & 0x04){
-            write_key(pctx, 'j');
+            write_key(pctx, RAMADDR_KEY_2);
         }
         if (deltaaddr & 0x08){
-            write_key(pctx, 'h');
+            write_key(pctx, RAMADDR_KEY_3);
         }
 
         uint8_t deltadata = data ^ newdata;
@@ -70,7 +72,7 @@ void *exmachina_thread(void *args){
 
             if (deltadata & (1 << j)){
 
-                int key = '0' + j;
+                int key = RAMDATA_KEY_0 + j;
                 write_key(pctx, key);
             }
         }
@@ -78,18 +80,16 @@ void *exmachina_thread(void *args){
         addr = newaddr;
         data = newdata;
 
-        write_key(pctx, 'w');
-        write_key(pctx, 'w');
+        write_key(pctx, RAM_WRITE);
+        write_key(pctx, RAM_WRITE);
     }
 
-    write_key(pctx, 'p');
-    write_key(pctx, KEY_F(2));
-
-    write_key(pctx, 'r');
-    write_key(pctx, 'r');
+    write_key(pctx, RAM_PROG_RUN);
+    write_key(pctx, CTRU_RESET);
+    write_key(pctx, CTRU_RESET);
 
     for (i = 0; i < 9; i++)
-        write_key(pctx, KEY_F(12));
+        write_key(pctx, KEY_CLK_FAST);
 
     return NULL;
 }

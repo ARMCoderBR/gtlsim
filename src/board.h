@@ -45,15 +45,10 @@ typedef enum {
 typedef struct {
 
     void (*destroy)(void **dest);
-    //int pos_w;
-    //int pos_h;
     control_type type;
     void *objptr;
-    //int key;
+    int key;
     char name[NAMESIZE];
-    // Se objeto tipo BOARD, possui dimensões e pode conter múltiplos outros objetos.
-    //int w_width;
-    //int w_height;
     int color;
     void/*board_object*/ *objptr_root;
     void/*board_object*/ *objptr_next;
@@ -69,21 +64,7 @@ typedef struct {
 #define MAX_FOCUSEABLES_BOARDS 50
 typedef struct {
 
-    //fd_set readfds;
-
-    //bool_t reader_ok;
-
     clkgen *boardclk;
-    //pthread_t refthread;
-    //bool_t refresh_run;
-    //int piperefresh[2];
-    //int pipekeys[2];
-
-    //bool_t focustable_done;
-    //int num_focuseable_boards;
-    //int current_board_on_focus;
-    //board_object *board_on_focus[MAX_FOCUSEABLES_BOARDS];
-
     bool_t clock_pausing;
     int iclk;
 
@@ -94,6 +75,8 @@ typedef struct {
     // For GTK
     bitswitch *switch_to_toggle;
     board_object * main_board;
+
+    int remote_key;
 
 } project_ctx_t;
 
