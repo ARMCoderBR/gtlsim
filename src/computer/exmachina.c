@@ -29,7 +29,6 @@ const int LINES_PROG = sizeof(demoprog)/2;
 ////////////////////////////////////////////////////////////////////////////////
 void write_key(project_ctx_t *pctx, int key){
 
-    printf("Key:%d\n",key);
     pctx->remote_key = key;
     usleep(100000);
 }
