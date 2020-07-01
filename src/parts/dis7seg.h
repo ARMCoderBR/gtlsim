@@ -43,7 +43,6 @@ typedef struct  {
     int segmap, segmap_old;
     int presegmap;
     dis7seg_type type;
-    indicator_refresh_t callback;
     void *cb_target;
     bool_t running;
     pthread_t persist_thread;

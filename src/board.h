@@ -69,19 +69,9 @@ typedef struct {
 #define MAX_FOCUSEABLES_BOARDS 50
 typedef struct {
 
-//    int TERM_LINES;
-//    int TERM_COLS;
     fd_set readfds;
 
-//    WINDOW *janela0;
-//    WINDOW *janela1;
-//    WINDOW *janela2;
-//    WINDOW *janela3;
-
-    pthread_mutex_t setrefmutex;
     bool_t reader_ok;
-
-    pthread_mutex_t ncursesmutex;
 
     clkgen *boardclk;
     pthread_t refthread;
