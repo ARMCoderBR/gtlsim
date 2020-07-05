@@ -55,6 +55,7 @@ project_ctx_t *project_init(void){
 
     pctx->clock_faster_req = pctx->clock_slower_req = pctx->clock_pause_req = false;
     pctx->switch_to_toggle = NULL;
+    pctx->pushb_timer = 0;
     pctx->remote_key = 0;
 
     return pctx;
@@ -444,8 +445,28 @@ bitswitch_toggle (GtkWidget *widget, GtkWidget *otherwidget,
 
     board_object *bo = ptr;
 
+    project_ctx_t *pctx = bo->parent_pctx;
+
+    if (pctx->pushb_timer) return;
+
     bitswitch* bs = bo->objptr;
-    ((project_ctx_t*)bo->parent_pctx)->switch_to_toggle = bs;
+    pctx->switch_to_toggle = bs;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+static void
+pushbutton_activate (GtkWidget *widget, GtkWidget *otherwidget,
+             gpointer   ptr) {
+
+    board_object *bo = ptr;
+
+    project_ctx_t *pctx = bo->parent_pctx;
+
+    if (pctx->pushb_timer) return;
+
+    bitswitch* bs = bo->objptr;
+    pctx->pushb_timer = 100000 / SIM_STEP_TIME_US;  // 100 ms
+    pctx->pushbutton_to_release = pctx->switch_to_toggle = bs;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -536,7 +557,7 @@ int board_add_pushbutton(board_object *b, bitswitch *bs, int pos_w, int pos_h, i
 
     //gtk_widget_set_events (ebox, GDK_BUTTON_PRESS_MASK);
     //printf("g_signal_connect bs:%p\n",bs);
-    g_signal_connect (ebox, "button_press_event", G_CALLBACK (bitswitch_toggle), obja/*bs*/);
+    g_signal_connect (ebox, "button_press_event", G_CALLBACK (pushbutton_activate), obja/*bs*/);
 
     /* Yet one more thing you need an X window for ... */
 
@@ -915,6 +936,20 @@ int board_run_b(project_ctx_t *pctx, event_context_t *ec, board_object *board){
 
         bitswitch_setval(bs, bs->value ?0:1);
         pctx->switch_to_toggle = NULL;
+    }
+
+    if (pctx->pushb_timer){
+
+        --pctx->pushb_timer;
+        if (!pctx->pushb_timer){
+
+            bitswitch* bs = pctx->pushbutton_to_release;
+            if (bs){
+
+                bitswitch_setval(bs, bs->value ?0:1);
+                pctx->pushbutton_to_release = NULL;
+            }
+        }
     }
 
     return 0;

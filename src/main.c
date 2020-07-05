@@ -32,7 +32,7 @@ void *run_sim(void *args){
     for (;running;){
 
         computer_sim_run((computer_t*)comp);
-        usleep(100);
+        usleep(SIM_STEP_TIME_US);    //100 US
     }
 
     return NULL;

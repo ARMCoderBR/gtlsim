@@ -25,6 +25,8 @@
 #include "dis7seg.h"
 #include "clkgen.h"
 
+#define SIM_STEP_TIME_US 100
+
 typedef enum {
 
     MANUAL_SWITCH,
@@ -80,7 +82,8 @@ typedef struct {
     // For GTK
     bitswitch *switch_to_toggle;
     board_object * main_board;
-
+    int pushb_timer;
+    bitswitch *pushbutton_to_release;
     int remote_key;
 
 } project_ctx_t;
