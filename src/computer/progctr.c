@@ -191,7 +191,9 @@ board_object *progctr_board_create(progctr *reg, int key, char *name){
         board_add_led(board, reg->led[i],1+4*j,3,s, LED_GREEN);
     }
 
-    board_add_led(board, reg->ledclk,28,3,"CLK", LED_BLUE);
+    board_add_spacer(board, 28,1);
+
+    board_add_led(board, reg->ledclk,29,3,"CLK", LED_BLUE);
 
     return board;
 }

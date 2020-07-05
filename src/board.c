@@ -36,6 +36,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 void gtk_manual_switch_set_img(void *ptarget, /*int swtype,*/ int value);
+void gtk_pushbutton_set_img(void *ptarget, /*int swtype,*/ int value);
 void gtk_led_set_img(GtkImage *gtkimg, led_color_t color, int value);
 void gtk_7seg_set_img(GtkImage *gtkimg, led_color_t color, int segmap);
 
@@ -87,6 +88,7 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
         switch (b->type){
 
         case MANUAL_SWITCH:
+        case PUSHBUTTON:
             {
                 bitswitch* bs = b->objptr;
 
@@ -98,7 +100,10 @@ void board_refresh_a(project_ctx_t *pctx, board_object *b, int new_h, int new_w)
 
                 if (bs->value != b->indicator_value){
 
-                    gtk_manual_switch_set_img(b->gtk_widget, /*int swtype,*/ bs->value);
+                    if (b->type == MANUAL_SWITCH)
+                        gtk_manual_switch_set_img(b->gtk_widget, /*int swtype,*/ bs->value);
+                    else
+                        gtk_pushbutton_set_img(b->gtk_widget, /*int swtype,*/ bs->value ^ bs->initial);
                     b->indicator_value = bs->value;
                 }
             }
@@ -410,6 +415,28 @@ void gtk_manual_switch_set_img(void *ptarget, /*int swtype,*/ int value){
         gtk_image_set_from_pixbuf ((GtkImage *)ptarget, switch_off);
 }
 
+static GdkPixbuf *pushb_on, *pushb_off;
+static bool pushb_pixbuf_initted = false;
+
+////////////////////////////////////////////////////////////////////////////////
+void gtk_pushbutton_set_img(void *ptarget, /*int swtype,*/ int value){
+
+    if (!pushb_pixbuf_initted){
+
+        //boardres_init_streams();
+
+        pushb_on = gdk_pixbuf_new_from_file("../pushbutton-on.png", NULL);//gdk_pixbuf_new_from_stream(switch_on_s, NULL, NULL);
+        pushb_off = gdk_pixbuf_new_from_file("../pushbutton-off.png", NULL);//gdk_pixbuf_new_from_stream(switch_off_s, NULL, NULL);
+
+        pushb_pixbuf_initted = true;
+    }
+
+    if (value)
+        gtk_image_set_from_pixbuf ((GtkImage *)ptarget, pushb_on);
+    else
+        gtk_image_set_from_pixbuf ((GtkImage *)ptarget, pushb_off);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 static void
 bitswitch_toggle (GtkWidget *widget, GtkWidget *otherwidget,
@@ -463,12 +490,61 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
 
     /* Yet one more thing you need an X window for ... */
 
-    //gtk_widget_realize ((GtkWidget*)ebox);
-    //gdk_window_set_cursor (gtk_widget_get_window(ebox), gdk_cursor_new_for_display (gdk_display_get_default(), GDK_HAND1));
+    gtk_widget_realize ((GtkWidget*)ebox);
+    gdk_window_set_cursor (gtk_widget_get_window(ebox), gdk_cursor_new_for_display (gdk_display_get_default(), GDK_HAND1));
 
     return board_add_object(b, obja);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+int board_add_pushbutton(board_object *b, bitswitch *bs, int pos_w, int pos_h, int key, char *name){
+
+    //printf("board_add_manual_switch(%s, %p)\n",name, bs);
+
+    if (!b) return -2;
+    if (!bs) return -2;
+
+    board_object *obja = malloc(sizeof(board_object));
+    if (!obja) return -1;
+
+    obja->type   = PUSHBUTTON;
+    obja->objptr = bs;
+    obja->key = key;
+
+    bs->initial = bs->value;
+
+    if (name)
+        strncpy(obja->name, name, NAMESIZE);
+    else
+        obja->name[0] = 0;
+    obja->objptr_root = NULL;
+    obja->objptr_next = NULL;
+
+    GtkImage *newimg = (GtkImage *)gtk_image_new();
+
+    gtk_pushbutton_set_img(newimg, /*0,*/ 0);
+
+    GtkLabel *newlbl = (GtkLabel *)gtk_label_new(name);
+
+    GtkEventBox *ebox = (GtkEventBox *)gtk_event_box_new();
+    gtk_container_add (GTK_CONTAINER (ebox), (GtkWidget*)newimg);
+    gtk_grid_attach (b->board_grid, (GtkWidget*)ebox, pos_w, pos_h, 2, 1);
+    gtk_grid_attach (b->board_grid, (GtkWidget*)newlbl, pos_w, 1+pos_h, 2, 1);
+
+    obja->gtk_widget = (GtkWidget*)newimg;
+    obja->indicator_value = bs->value;
+
+    //gtk_widget_set_events (ebox, GDK_BUTTON_PRESS_MASK);
+    //printf("g_signal_connect bs:%p\n",bs);
+    g_signal_connect (ebox, "button_press_event", G_CALLBACK (bitswitch_toggle), obja/*bs*/);
+
+    /* Yet one more thing you need an X window for ... */
+
+    gtk_widget_realize ((GtkWidget*)ebox);
+    gdk_window_set_cursor (gtk_widget_get_window(ebox), gdk_cursor_new_for_display (gdk_display_get_default(), GDK_HAND1));
+
+    return board_add_object(b, obja);
+}
 
 
 static GdkPixbuf *disp7_0, *disp7_1, *disp7_2, *disp7_3, *disp7_4, *disp7_5, *disp7_6, *disp7_7, *disp7_8, *disp7_9;
@@ -731,6 +807,29 @@ int board_add_xdigit(board_object *b, indicator *out, int pos_w, int pos_h, char
 
     return board_add_object(b, obja);
 }
+
+static GdkPixbuf *transparent;
+static bool transp_pixbuf_initted = false;
+
+////////////////////////////////////////////////////////////////////////////////
+int board_add_spacer(board_object *b, int pos_w, int pos_h){
+
+    if (!b) return -2;
+
+    if (!transp_pixbuf_initted){
+
+        transparent = gdk_pixbuf_new_from_file("../transparent.png", NULL);
+        transp_pixbuf_initted = true;
+    }
+
+    GtkImage *transimg = (GtkImage *)gtk_image_new();
+    gtk_image_set_from_pixbuf (transimg, transparent);
+
+    gtk_grid_attach (b->board_grid, (GtkWidget*)transimg, pos_w, pos_h, 1, 1);
+    return 0;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h){

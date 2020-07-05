@@ -289,7 +289,8 @@ board_object *reg_8bit_board_create(reg_8bit *reg, int key, char *name){
         }
     }
 
-    board_add_led(board, reg->ledclk,35,1,"CLK", LED_BLUE);
+    board_add_spacer(board, 35,1);
+    board_add_led(board, reg->ledclk,36,1,"CLK", LED_BLUE);
 
     return board;
 }

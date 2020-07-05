@@ -18,6 +18,7 @@ typedef struct{
     part_destroy_function_t destroy;
     bitvalue_t oldvalue;
     bitvalue_t value;
+    bitvalue_t initial;
     ehandler *out_event_handler_root;
     char name[30];
     event_context_t *ec;

@@ -475,11 +475,11 @@ board_object *ram_8bit_board_create(ram_8bit *ram, int key, char *name){
         board_add_manual_switch(board, ram->progaddr[i], 9+j, 6, RAMADDR_KEY_0+i, s);
     }
 
-
-    board_add_manual_switch(board, ram->progwrite, 8, 6, RAM_WRITE,"Write");
+    board_add_pushbutton(board, ram->progwrite, 7, 6, RAM_WRITE,"Write");
 
     board_add_led(board, ram->ledrun,1,1,"RUN", LED_GREEN);
     board_add_led(board, ram->ledprog,2,1,"PRG", LED_RED);
+    board_add_spacer(board,3,1);
     board_add_manual_switch(board, ram->prog_run, 1, 3, RAM_PROG_RUN,"Pr/Run");
 
     return board;

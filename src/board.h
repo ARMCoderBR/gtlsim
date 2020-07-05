@@ -28,6 +28,7 @@
 typedef enum {
 
     MANUAL_SWITCH,
+    PUSHBUTTON,
     LED,
     XDIGIT,
     BOARD,
@@ -89,11 +90,15 @@ typedef struct {
 
 int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pow_h, int key, char *name);
 
+int board_add_pushbutton(board_object *b, bitswitch *bs, int pos_w, int pos_h, int key, char *name);
+
 int board_add_led(board_object *b, indicator *out, int pos_w, int pos_h, char *name, led_color_t color);
 
 int board_add_display_7seg(board_object *b, dis7seg *out, int pos_w, int pos_h, char *name, led_color_t color);
 
 int board_add_xdigit(board_object *b, indicator *out, int pos_w, int pos_h, char *name, led_color_t color);
+
+int board_add_spacer(board_object *b, int pos_w, int pos_h);
 
 int board_add_board(board_object *b, board_object *board, int pos_w, int pos_h);
 int board_add_boardWH(board_object *b, board_object *board, int pos_w, int pos_h, int width, int heigth);
