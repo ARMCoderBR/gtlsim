@@ -424,10 +424,10 @@ void gtk_pushbutton_set_img(void *ptarget, /*int swtype,*/ int value){
 
     if (!pushb_pixbuf_initted){
 
-        //boardres_init_streams();
+        boardres_init_streams();
 
-        pushb_on = gdk_pixbuf_new_from_file("../pushbutton-on.png", NULL);//gdk_pixbuf_new_from_stream(switch_on_s, NULL, NULL);
-        pushb_off = gdk_pixbuf_new_from_file("../pushbutton-off.png", NULL);//gdk_pixbuf_new_from_stream(switch_off_s, NULL, NULL);
+        pushb_on = gdk_pixbuf_new_from_stream(pushbutton_on_s, NULL, NULL);
+        pushb_off = gdk_pixbuf_new_from_stream(pushbutton_off_s, NULL, NULL);
 
         pushb_pixbuf_initted = true;
     }
@@ -511,8 +511,8 @@ int board_add_manual_switch(board_object *b, bitswitch *bs, int pos_w, int pos_h
 
     /* Yet one more thing you need an X window for ... */
 
-    gtk_widget_realize ((GtkWidget*)ebox);
-    gdk_window_set_cursor (gtk_widget_get_window(ebox), gdk_cursor_new_for_display (gdk_display_get_default(), GDK_HAND1));
+    //gtk_widget_realize ((GtkWidget*)ebox);
+    //gdk_window_set_cursor (gtk_widget_get_window(ebox), gdk_cursor_new_for_display (gdk_display_get_default(), GDK_HAND1));
 
     return board_add_object(b, obja);
 }
@@ -561,8 +561,8 @@ int board_add_pushbutton(board_object *b, bitswitch *bs, int pos_w, int pos_h, i
 
     /* Yet one more thing you need an X window for ... */
 
-    gtk_widget_realize ((GtkWidget*)ebox);
-    gdk_window_set_cursor (gtk_widget_get_window(ebox), gdk_cursor_new_for_display (gdk_display_get_default(), GDK_HAND1));
+    //gtk_widget_realize ((GtkWidget*)ebox);
+    //gdk_window_set_cursor (gtk_widget_get_window(ebox), gdk_cursor_new_for_display (gdk_display_get_default(), GDK_HAND1));
 
     return board_add_object(b, obja);
 }
@@ -839,7 +839,8 @@ int board_add_spacer(board_object *b, int pos_w, int pos_h){
 
     if (!transp_pixbuf_initted){
 
-        transparent = gdk_pixbuf_new_from_file("../transparent.png", NULL);
+        boardres_init_streams();
+        transparent = gdk_pixbuf_new_from_stream(transparent_s, NULL, NULL);
         transp_pixbuf_initted = true;
     }
 

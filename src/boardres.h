@@ -45,6 +45,11 @@ extern GInputStream *led_yellow_on_s;
 extern GInputStream *switch_off_s;
 extern GInputStream *switch_on_s;
 
+extern GInputStream *transparent_s;
+extern GInputStream *pushbutton_off_s;
+extern GInputStream *pushbutton_on_s;
+extern GInputStream *nand_s;
+
 void boardres_init_streams(void);
 
 #endif /* SRC_BOARDRES_H_ */

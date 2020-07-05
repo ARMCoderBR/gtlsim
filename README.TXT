@@ -9,8 +9,8 @@
 // SEE LICENSE AT https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 ////////////////////////////////////////////////////////////////////////////////
 
-    Version 1.1.0
-    July 01, 2020
+    Version 1.1.1
+    July 05, 2020
 
     INTRO
     ~~~~~
@@ -19,8 +19,8 @@
 
     GTLSim is a follow-up to TLSIM, a pet project that I decided to build after
 discovering Ben Eater's YouTube channel. At his channel, Ben holds a series of
-videos where he teaches how to build a very simple computer over some using just
-TTL ICs, switches, LEDs and other discrete parts.
+videos where he teaches how to build a very simple computer using just TTL ICs, 
+switches, LEDs and other discrete parts.
 
     For reference, the playlist with the complete tutorial is here:
    
@@ -96,3 +96,9 @@ replicated them quite faithfully in the UI.
     V1.1.0 - July 01, 2020:
     
     - Gtlsim 1.1.0!
+
+    V1.1.1 - July 05, 2020:
+    
+    - A more realistic pushbutton for the "Write RAM" function, improved board
+      layout, other aesthetic improvements.
+    

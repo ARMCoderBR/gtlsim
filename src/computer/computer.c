@@ -20,11 +20,7 @@
 void computer_sim_begin(computer_t *comp, GtkGrid *maingrid){
 
     comp->pctx = project_init();
-
-    char name[64];
-
-    sprintf(name,"BEN EATER'S COMPUTER SIM BY ARMCODER V%d.%d.%d",SW_VERSION, SW_REVISION, SW_MINOR);
-    comp->mainboard = board_create(0,0,0,name);
+    comp->mainboard = board_create(0,0,0,"BEN EATER'S COMPUTER SIM BY ARMCODER");
     comp->mainboard->parent_pctx = comp->pctx;
 
     gtk_grid_attach (maingrid, (GtkWidget*)comp->mainboard->board_frame, 1, 2, 4, 1);

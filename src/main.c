@@ -15,6 +15,7 @@
 #include "board.h"
 #include "tests.h"
 #include "computer.h"
+#include "boardres.h"
 
 #include <gtk/gtk.h>
 #include <pthread.h>
@@ -57,6 +58,15 @@ activate (GtkApplication* app,
 
     GtkWidget *main_grid = gtk_grid_new();//gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_container_add (GTK_CONTAINER (window), main_grid);
+
+    boardres_init_streams();
+
+    GdkPixbuf *icon = gdk_pixbuf_new_from_stream(nand_s, NULL, NULL);
+    gtk_window_set_icon ((GtkWindow*)window, icon);
+
+    char name[64];
+    sprintf(name,"GTLSIM V%d.%d.%d",SW_VERSION, SW_REVISION, SW_MINOR);
+    gtk_window_set_title ((GtkWindow*)window, name);
 
     GtkWidget *button2 = gtk_button_new_with_label ("Exit");
 
