@@ -9,7 +9,7 @@
 // SEE LICENSE AT https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 ////////////////////////////////////////////////////////////////////////////////
 
-    Version 1.1.1
+    Version 1.1.2
     July 05, 2020
 
     INTRO
@@ -101,4 +101,13 @@ replicated them quite faithfully in the UI.
     
     - A more realistic pushbutton for the "Write RAM" function, improved board
       layout, other aesthetic improvements.
+    
+    V1.1.2 - July 05, 2020:
+    
+    - Created a gate array (with ORs) that resets the T0~tN cycle counters 
+      faster, yielding a greater execution speed (more instructions per clock). 
+      This is my first improvement over Ben's design. I included a TURBO switch 
+      in the Control Unit module, so this accelerator can be enabled or disabled 
+      (it's disabled by default).   
+
     
