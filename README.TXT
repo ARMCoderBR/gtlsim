@@ -9,8 +9,8 @@
 // SEE LICENSE AT https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 ////////////////////////////////////////////////////////////////////////////////
 
-    Version 1.1.2
-    July 05, 2020
+    Version 1.1.3
+    July 08, 2020
 
     INTRO
     ~~~~~
