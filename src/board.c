@@ -64,7 +64,6 @@ project_ctx_t *project_init(void){
 ////////////////////////////////////////////////////////////////////////////////
 void sigterm_handler(int sig){
 
-    endwin();
     exit(0);
 }
 

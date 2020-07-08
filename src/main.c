@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <ncurses.h>
+#include <unistd.h>
 
 #include "board.h"
 #include "tests.h"
@@ -89,7 +90,12 @@ int main (int argc, char **argv) {
     computer_t *comp = malloc(sizeof(computer_t));
     memset(comp, 0, sizeof(computer_t));
 
-    GtkApplication *app = gtk_application_new ("cpstecnologia.com.br", G_APPLICATION_FLAGS_NONE);
+
+    char appname[128];
+    sprintf(appname,"gtlsim%d.cpstecnologia.com.br",getpid());
+    printf("%s\n",appname);
+
+    GtkApplication *app = gtk_application_new (appname, G_APPLICATION_FLAGS_NONE);
 
     g_signal_connect (app, "activate", G_CALLBACK (activate), comp);
 

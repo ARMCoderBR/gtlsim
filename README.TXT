@@ -110,4 +110,8 @@ replicated them quite faithfully in the UI.
       in the Control Unit module, so this accelerator can be enabled or disabled 
       (it's disabled by default).   
 
+    V1.1.3 - July 08, 2020:
+    
+    - Eliminated stray NCurses dependence; corrected launch problem that 
+      prevented more than one instance of GTLSIM from running at one time.
     
